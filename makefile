@@ -1,5 +1,6 @@
 CC=g++-7
 CFLAGS=-c -Wall -Werror -std=c++17
+LFLAGS=-O3
 SFMLFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 
 all: aux showTool mesherTool
@@ -13,21 +14,20 @@ exc.o: exc/exc.cc exc/exc.h
 	$(CC) -c $< $(CFLAGS)
 
 mesherTool: mesher.o aux
-	$(CC) -o mesherTool io.o exc.o $< $(SFMLFLAGS)
+	$(CC) -o mesherTool $< io.o exc.o $(LFLAGS)
 
 showTool: show.o aux point.o
-	$(CC) -o showTool point.o io.o exc.o $< $(SFMLFLAGS) -lm
+	$(CC) -o showTool $< point.o io.o exc.o  $(SFMLFLAGS) -lm $(LFLAGS)
 
 mesher.o: mesher/mesher.cc
-	$(CC) -c $(CFLAGS) $<
+	$(CC) -c $< $(CFLAGS)
 
 show.o: show/show.cc
-	$(CC) -c $(CFLAGS) $<
+	$(CC) -c $< $(CFLAGS)
 
 point.o: show/types/point.cc show/types/point.h
-	$(CC) -c $(CFLAGS) $<
+	$(CC) -c $< $(CFLAGS)
 
 .PHONY: clean
-
 clean:
-	rm *.o
+	rm *.o mesherTool showTool

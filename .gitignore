@@ -1,2 +1,4 @@
 *.o
 *.h.gch
+mesherTool
+showTool

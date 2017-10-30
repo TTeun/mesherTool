@@ -69,6 +69,8 @@ int main()
       window.clear(sf::Color::Black);
       for (size_t i = 0; i < quads.size(); i += 5)
         window.draw(quads.data() + i, 5, sf::LinesStrip);
+
+      window.draw(pts.data(), pts.size(), sf::Points);
       window.display();
   }
   return 0;
