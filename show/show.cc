@@ -4,7 +4,7 @@
 #include <climits>
 #include <cmath>
 #include <string>
-#include "IO/readfile.h"
+#include "../IO/io.h"
 #include "types/point.h"
 
 using namespace std;

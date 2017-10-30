@@ -1,5 +1,5 @@
 #include "io.h"
-#include <string>
+#include "../exc/exc.h"
 
 namespace IO {
   ofstream open_ofstream(char const * path, ios_base::openmode mode){
@@ -7,7 +7,7 @@ namespace IO {
     if (not str.is_open()){
       string error("Could not open file ");
       error.append(path);
-      throw error;
+      throw Exc(error, Exc::EXC_TYPE::ERROR);
     }
     return str;
   }
@@ -17,9 +17,8 @@ namespace IO {
     if (not str.is_open()){
       string error("Could not open file ");
       error.append(path);
-      throw error;
+      throw Exc(error, Exc::EXC_TYPE::ERROR);
     }
     return str;
   }
-
 } // IO
