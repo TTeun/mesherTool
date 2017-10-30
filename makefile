@@ -13,16 +13,22 @@ io.o: IO/io.cc IO/io.h
 exc.o: exc/exc.cc exc/exc.h
 	$(CC) -c $< $(CFLAGS)
 
-mesherTool: mesher.o aux
-	$(CC) -o mesherTool $< io.o exc.o $(LFLAGS)
+mesherTool: mesher.o config.o meshbuilder.o 
+	$(CC) -o mesherTool $< config.o meshbuilder.o io.o exc.o $(LFLAGS)
 
-showTool: show.o aux point.o
+showTool: show.o  point.o
 	$(CC) -o showTool $< point.o io.o exc.o  $(SFMLFLAGS) -lm $(LFLAGS)
 
-mesher.o: mesher/mesher.cc
+mesher.o: mesher/mesher.cc config.o meshbuilder.o
 	$(CC) -c $< $(CFLAGS)
 
 show.o: show/show.cc
+	$(CC) -c $< $(CFLAGS)
+
+config.o: mesher/config.cc mesher/config.h
+	$(CC) -c $< $(CFLAGS)
+
+meshbuilder.o: mesher/meshbuilder.cc mesher/meshbuilder.h
 	$(CC) -c $< $(CFLAGS)
 
 point.o: show/types/point.cc show/types/point.h
