@@ -58,15 +58,33 @@ namespace Mesher {
               col != static_cast<long>(cf.half_inner_block_count) + 1;
             ++col)
     {
-      double h     = col * cf.half_square_size / static_cast<double>(cf.half_inner_block_count);
-      double d     = sqrt(h * h + cf.half_square_size * cf.half_square_size);
-      double abs_x = abs(col) / static_cast<double>(cf.half_inner_block_count);
+      double s     = col / static_cast<double>(cf.half_inner_block_count);
+      double abs_x = abs(s);
+
+      double h_p   = s * cf.half_square_size;
+      double d_p   = sqrt(h_p * h_p + cf.half_square_size * cf.half_square_size);
+
+      double phi   = M_PI * s / 4.0;
+      double h_a   = tan(phi) * cf.half_square_size;
+      double d_a   = sqrt(h_a * h_a + cf.half_square_size * cf.half_square_size);
+
       for (long rad = 1; rad != static_cast<long>(cf.outer_steps); ++rad)
       {
-        double abs_rad = cf.alpha_connection * (1.0 - (rad - 1.0) / static_cast<double>(cf.outer_steps - 2));
-        double r = (1 + (cf.circle_radius / d - 1) * static_cast<double>(rad)
-                  / static_cast<double>(cf.outer_steps - 1));
-                  auto [x, y] = pos_func(r, (1 - cf.alpha * sq(abs_x) * abs_rad) * cf.half_square_size, (1 - abs_rad * cf.alpha) * h);
+        float blend    = static_cast<double>(rad - 1.0) / static_cast<double>(cf.outer_steps - 2);
+        double abs_rad = cf.alpha_connection * (1.0 - blend);
+
+        double r_p = (1 + (cf.circle_radius / d_p - 1) * static_cast<double>(rad)
+                    / static_cast<double>(cf.outer_steps - 1));
+
+        double r_a = (1 + (cf.circle_radius / d_a - 1) * static_cast<double>(rad)
+                    / static_cast<double>(cf.outer_steps - 1));
+
+        auto [x_p, y_p] = pos_func(r_p, (1 - cf.alpha * sq(abs_x) * abs_rad) * cf.half_square_size, (1 - abs_rad * cf.alpha) * h_p);
+        auto [x_a, y_a] = pos_func(r_a, (1 - cf.alpha * sq(abs_x) * abs_rad) * cf.half_square_size, (1 - abs_rad * cf.alpha) * h_a);
+
+
+        double x = (1.0 - blend) * x_p + blend * x_a;
+        double y = (1.0 - blend) * y_p + blend * y_a;
         cf.node << x << " " << y << '\n';
         ++temp_index_offset;
       }

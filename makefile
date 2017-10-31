@@ -1,5 +1,5 @@
 CC=g++-7
-CFLAGS=-c -Wall -pedantic -Werror -std=c++17
+CFLAGS=-c  -pedantic -Werror -std=c++17
 LFLAGS=-O3
 SFMLFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 

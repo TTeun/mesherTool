@@ -16,7 +16,7 @@ namespace Mesher {
     inner_block_width       = inner_square_side / inner_block_count;
     half_inner_block_count  = inner_block_count / 2;
     half_square_size        = inner_square_side / 2;
-    outer_steps   = (circle_radius - half_square_size) / inner_block_width + 2;
+    outer_steps   = (circle_radius - half_square_size) / inner_block_width + 1;
 
     node = IO::open_ofstream("data/dat.node", std::ofstream::out | std::ofstream::trunc);
     poly = IO::open_ofstream("data/dat.poly", std::ofstream::out | std::ofstream::trunc);

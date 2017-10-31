@@ -62,7 +62,7 @@ int main()
   vector<Type::Point> quads;
   try {
     IO::readPoly("data/dat.poly", quads, pts);
-    cout << quads.size() << " Polygons read succesfully\n";
+    cout << quads.size() / 5 << " Polygons read succesfully\n";
   }
   catch (Exc &e){
     cout << e << '\n';
