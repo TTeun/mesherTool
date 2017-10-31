@@ -29,10 +29,10 @@ void normalizePts(vector<Type::Point> &pts){
 
   for (auto &pt : pts){
     pt.position.x -= x_min;
-    pt.position.x *= 600.f / (x_max - x_min);
+    pt.position.x *= 1000.f / (x_max - x_min);
 
     pt.position.y -= y_min;
-    pt.position.y *= 600.f / (y_max - y_min);
+    pt.position.y *= 1000.f / (y_max - y_min);
   }
 }
 
@@ -46,7 +46,7 @@ int main()
     return 1;
   }
 
-  sf::RenderWindow window(sf::VideoMode(600, 600), "Mesh!");
+  sf::RenderWindow window(sf::VideoMode(1000, 1000), "Mesh!");
   vector<Type::Point> pts;
   try {
     IO::readNodes("data/dat.node", pts);
