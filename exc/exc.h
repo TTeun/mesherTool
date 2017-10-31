@@ -16,13 +16,12 @@ public:
   };
 
   Exc() = delete;
-  Exc(const char *errMessage, EXC_TYPE type);
-  Exc(string const &errMessage, EXC_TYPE type);
+  Exc(string &&errMessage, EXC_TYPE type);
   virtual ~Exc() throw();
 
   friend ostream& operator<<(ostream &ostr, Exc const &e);
 protected:
-  char const * m_errMessage = 0;
+  string m_errMessage = 0;
   EXC_TYPE m_type;
 };
 

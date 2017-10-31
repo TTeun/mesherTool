@@ -10,5 +10,6 @@ namespace Type {
   Point::Point(stringstream &ss)
   {
     ss >> position.x >> position.y;
+    color = {135,207,62};
   }
 } // Type

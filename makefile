@@ -1,11 +1,9 @@
 CC=g++-7
-CFLAGS=-c -Wall -Werror -std=c++17
+CFLAGS=-c -Wall -pedantic -Werror -std=c++17
 LFLAGS=-O3
 SFMLFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 
-all: aux showTool mesherTool
-
-aux: io.o exc.o
+all: io.o exc.o showTool mesherTool
 
 io.o: IO/io.cc IO/io.h
 	$(CC) -c $< $(CFLAGS)
@@ -13,11 +11,11 @@ io.o: IO/io.cc IO/io.h
 exc.o: exc/exc.cc exc/exc.h
 	$(CC) -c $< $(CFLAGS)
 
-mesherTool: mesher.o config.o meshbuilder.o 
-	$(CC) -o mesherTool $< config.o meshbuilder.o io.o exc.o $(LFLAGS)
+mesherTool: mesher.o config.o meshbuilder.o exc.o io.o point.o
+	$(CC) -o mesherTool $< config.o meshbuilder.o io.o exc.o point.o $(LFLAGS) $(SFMLFLAGS)
 
-showTool: show.o  point.o
-	$(CC) -o showTool $< point.o io.o exc.o  $(SFMLFLAGS) -lm $(LFLAGS)
+showTool: show.o meshbuilder.o point.o io.o exc.o config.o
+	$(CC) -o showTool $< point.o meshbuilder.o io.o exc.o config.o $(SFMLFLAGS) -lm $(LFLAGS)
 
 mesher.o: mesher/mesher.cc config.o meshbuilder.o
 	$(CC) -c $< $(CFLAGS)

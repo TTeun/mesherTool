@@ -3,8 +3,9 @@
 #include <iostream>
 #include <climits>
 #include <cmath>
-#include <string>
 #include "../IO/io.h"
+#include "../mesher/meshbuilder.h"
+#include "../exc/exc.h"
 #include "types/point.h"
 
 using namespace std;
@@ -28,34 +29,63 @@ void normalizePts(vector<Type::Point> &pts){
 
   for (auto &pt : pts){
     pt.position.x -= x_min;
-    pt.position.x *= 800.0 / (x_max - x_min);
+    pt.position.x *= 600.f / (x_max - x_min);
 
     pt.position.y -= y_min;
-    pt.position.y *= 600 / (y_max - y_min);
+    pt.position.y *= 600.f / (y_max - y_min);
   }
 }
 
 int main()
 {
-  sf::RenderWindow window(sf::VideoMode(800, 600), "Mesh!");
+  try {
+    MeshBuilder::Config config;
+    MeshBuilder::buildMesh(config);
+  } catch (Exc &e){
+    cout << e << '\n';
+    return 1;
+  }
+
+  sf::RenderWindow window(sf::VideoMode(600, 600), "Mesh!");
   vector<Type::Point> pts;
   try {
-    IO::readNodes(pts);
+    IO::readNodes("data/dat.node", pts);
     cout << "Nodes read succesfully\n";
   }
-  catch (string &str){
-    cout << str << '\n';
+  catch (Exc &e){
+    cout << e << '\n';
+    window.close();
+    return 1;
   }
 
   normalizePts(pts);
   vector<Type::Point> quads;
   try {
-    IO::readPoly(quads, pts);
+    IO::readPoly("data/dat.poly", quads, pts);
     cout << "Polygons read succesfully\n";
   }
-  catch (string &str){
-    cout << str << '\n';
+  catch (Exc &e){
+    cout << e << '\n';
+    window.close();
+    return 1;
   }
+
+  vector<sf::Vertex> orientation;
+  for (size_t i = 0; i < quads.size(); i += 5)
+  {
+    sf::Vertex vtx;
+    vtx = (quads[i].position + 6.0f * quads[i + 1].position + quads[i + 2].position) / 8.0f;
+    orientation.push_back(vtx);
+
+    vtx = (quads[i + 1].position + 6.0f * quads[i + 2].position + quads[i + 3].position) / 8.0f;
+    vtx.color = {255, 0, 0};
+    orientation.push_back(vtx);
+
+    vtx = (quads[i + 2].position + 6.0f * quads[i + 3].position + quads[i + 4].position) / 8.0f;
+    vtx.color = {0, 0, 255};
+    orientation.push_back(vtx);
+  }
+
 
   while (window.isOpen())
   {
@@ -69,6 +99,9 @@ int main()
       window.clear(sf::Color::Black);
       for (size_t i = 0; i < quads.size(); i += 5)
         window.draw(quads.data() + i, 5, sf::LinesStrip);
+
+      for (size_t i = 0; i < orientation.size(); i += 3)
+        window.draw(orientation.data() + i, 3, sf::LinesStrip);
 
       window.draw(pts.data(), pts.size(), sf::Points);
       window.display();
