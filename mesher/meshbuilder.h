@@ -7,7 +7,11 @@
 using namespace std;
 
 namespace MeshBuilder {
-  typedef pair<double, double>(*p_func)(double r, double half_square_size, double h);
+  typedef pair<double, double>(*p_func)(
+                                      double r,
+                                      double half_square_size,
+                                      double h
+                                    );
 
   void buildMesh(Config &config);
   void buildInnerSquare(Config &config);

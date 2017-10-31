@@ -50,7 +50,7 @@ int main()
   vector<Type::Point> pts;
   try {
     IO::readNodes("data/dat.node", pts);
-    cout << "Nodes read succesfully\n";
+    cout << pts.size() << " Nodes read succesfully\n";
   }
   catch (Exc &e){
     cout << e << '\n';
@@ -62,7 +62,7 @@ int main()
   vector<Type::Point> quads;
   try {
     IO::readPoly("data/dat.poly", quads, pts);
-    cout << "Polygons read succesfully\n";
+    cout << quads.size() << " Polygons read succesfully\n";
   }
   catch (Exc &e){
     cout << e << '\n';
@@ -100,8 +100,8 @@ int main()
       for (size_t i = 0; i < quads.size(); i += 5)
         window.draw(quads.data() + i, 5, sf::LinesStrip);
 
-      for (size_t i = 0; i < orientation.size(); i += 3)
-        window.draw(orientation.data() + i, 3, sf::LinesStrip);
+      // for (size_t i = 0; i < orientation.size(); i += 3)
+        // window.draw(orientation.data() + i, 3, sf::LinesStrip);
 
       window.draw(pts.data(), pts.size(), sf::Points);
       window.display();

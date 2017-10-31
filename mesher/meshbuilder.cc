@@ -66,7 +66,7 @@ namespace MeshBuilder {
         double abs_rad = 1.0 - (rad - 1.0) / static_cast<double>(cf.outer_steps - 2);
         double r = (1 + (cf.circle_radius / d - 1) * static_cast<double>(rad)
                   / static_cast<double>(cf.outer_steps - 1));
-        auto [x, y] = pos_func((1 - cf.alpha * sq(abs_x) * abs_rad) * r, cf.half_square_size, h);
+                  auto [x, y] = pos_func(r, (1 - cf.alpha * sq(abs_x) * abs_rad) * cf.half_square_size, (1 - abs_rad * cf.alpha) * h);
         cf.node << x << " " << y << '\n';
         ++temp_index_offset;
       }
