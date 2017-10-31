@@ -10,7 +10,7 @@
 
 using namespace std;
 
-namespace MeshBuilder {
+namespace Mesher {
 
   struct Config {
     Config();
@@ -24,7 +24,8 @@ namespace MeshBuilder {
     size_t half_inner_block_count;
     size_t outer_steps;
     double circle_radius;
-    float alpha;
+    double alpha;
+    double alpha_connection;
     std::ofstream node;
     std::ofstream poly;
 
@@ -37,7 +38,7 @@ namespace MeshBuilder {
     void readConfig();
     void printHeaders();
   };
-} // MeshBuilder
+} // Mesher
 
 
 #endif //__CONFIG__H

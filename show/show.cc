@@ -4,7 +4,7 @@
 #include <climits>
 #include <cmath>
 #include "../IO/io.h"
-#include "../mesher/meshbuilder.h"
+#include "../mesher/mesher.h"
 #include "../exc/exc.h"
 #include "types/point.h"
 
@@ -39,8 +39,8 @@ void normalizePts(vector<Type::Point> &pts){
 int main()
 {
   try {
-    MeshBuilder::Config config;
-    MeshBuilder::buildMesh(config);
+    Mesher::Config config;
+    Mesher::buildMesh(config);
   } catch (Exc &e){
     cout << e << '\n';
     return 1;
@@ -86,7 +86,7 @@ int main()
     orientation.push_back(vtx);
   }
 
-
+  bool showOrientation = false;
   while (window.isOpen())
   {
       sf::Event event;
@@ -94,14 +94,23 @@ int main()
       {
           if (event.type == sf::Event::Closed)
               window.close();
+          if (event.type == sf::Event::EventType::KeyPressed)
+          {
+            if (event.key.code == sf::Keyboard::O)
+            {
+              showOrientation = not showOrientation;
+            }
+          }
+
       }
 
       window.clear(sf::Color::Black);
       for (size_t i = 0; i < quads.size(); i += 5)
         window.draw(quads.data() + i, 5, sf::LinesStrip);
 
-      // for (size_t i = 0; i < orientation.size(); i += 3)
-        // window.draw(orientation.data() + i, 3, sf::LinesStrip);
+      if (showOrientation)
+        for (size_t i = 0; i < orientation.size(); i += 3)
+          window.draw(orientation.data() + i, 3, sf::LinesStrip);
 
       window.draw(pts.data(), pts.size(), sf::Points);
       window.display();

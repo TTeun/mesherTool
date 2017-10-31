@@ -1,18 +1,17 @@
-#ifndef __MESH_BUILDER__H
-#define __MESH_BUILDER__H
+#ifndef __MESHER__H
+#define __MESHER__H
 
 #include <fstream>
-#include "config.h"
+#include "../config/config.h"
 
 using namespace std;
 
-namespace MeshBuilder {
+namespace Mesher {
   typedef pair<double, double>(*p_func)(
-                                      double r,
-                                      double half_square_size,
-                                      double h
-                                    );
-
+                                        double r,
+                                        double half_square_size,
+                                        double h
+                                      );
   void buildMesh(Config &config);
   void buildInnerSquare(Config &config);
   void buildQuadrant(
@@ -40,4 +39,4 @@ namespace MeshBuilder {
 
 }
 
-#endif //__MESH_BUILDER__H
+#endif //__MESHER__H

@@ -3,35 +3,29 @@ CFLAGS=-c -Wall -pedantic -Werror -std=c++17
 LFLAGS=-O3
 SFMLFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 
-all: io.o exc.o showTool mesherTool
+all: tool
+
+tool: show.o mesher.o point.o io.o exc.o config.o
+	$(CC) -o tool $< point.o mesher.o io.o exc.o config.o $(SFMLFLAGS) -lm $(LFLAGS)
 
 io.o: IO/io.cc IO/io.h
-	$(CC) -c $< $(CFLAGS)
+	$(CC) $< $(CFLAGS)
 
 exc.o: exc/exc.cc exc/exc.h
-	$(CC) -c $< $(CFLAGS)
-
-mesherTool: mesher.o config.o meshbuilder.o exc.o io.o point.o
-	$(CC) -o mesherTool $< config.o meshbuilder.o io.o exc.o point.o $(LFLAGS) $(SFMLFLAGS)
-
-showTool: show.o meshbuilder.o point.o io.o exc.o config.o
-	$(CC) -o showTool $< point.o meshbuilder.o io.o exc.o config.o $(SFMLFLAGS) -lm $(LFLAGS)
-
-mesher.o: mesher/mesher.cc config.o meshbuilder.o
-	$(CC) -c $< $(CFLAGS)
+	$(CC) $< $(CFLAGS)
 
 show.o: show/show.cc
-	$(CC) -c $< $(CFLAGS)
+	$(CC) $< $(CFLAGS)
 
-config.o: mesher/config.cc mesher/config.h
-	$(CC) -c $< $(CFLAGS)
+config.o: config/config.cc config/config.h
+	$(CC) $< $(CFLAGS)
 
-meshbuilder.o: mesher/meshbuilder.cc mesher/meshbuilder.h
-	$(CC) -c $< $(CFLAGS)
+mesher.o: mesher/mesher.cc mesher/mesher.h
+	$(CC) $< $(CFLAGS)
 
 point.o: show/types/point.cc show/types/point.h
-	$(CC) -c $< $(CFLAGS)
+	$(CC) $< $(CFLAGS)
 
 .PHONY: clean
 clean:
-	rm *.o mesherTool showTool
+	rm *.o tool

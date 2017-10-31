@@ -2,10 +2,11 @@
 #include "../IO/io.h"
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
-namespace MeshBuilder {
+namespace Mesher {
   Config::Config(){
     readConfig();
     inner_block_count     = ceil(inner_square_side / inner_block_min_width);
@@ -44,7 +45,9 @@ namespace MeshBuilder {
       str_name.append(" could not be found in config file!");
       throw Exc(move(str_name), Exc::EXC_TYPE::ERROR);
     }
-    return string_to_T<T>( key_value_map[name] );
+    T result = string_to_T<T>( key_value_map[name] );
+    cout << std::setfill ('.') << std::setw(30) << left << name << "\t" << result << '\n';
+    return result;
   }
 
   void Config::readConfig(){
@@ -71,6 +74,8 @@ namespace MeshBuilder {
     inner_block_min_width = readFromMap<double>(key_value_map, "inner_block_min_width");
     circle_radius         = readFromMap<double>(key_value_map, "circle_radius");
     alpha                 = readFromMap<double>(key_value_map, "alpha");
+    alpha_connection      = readFromMap<double>(key_value_map, "alpha_connection");
+    cout << "Config file read succesfully\n\n";
   }
 
   void Config::printHeaders(){
@@ -79,4 +84,4 @@ namespace MeshBuilder {
   }
 
 
-} // MeshBuilder
+} // Mesher
