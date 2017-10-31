@@ -11,7 +11,7 @@
 namespace Mesher {
 
   struct Config {
-    Config();
+    Config(char const *config_path);
 
     double inner_square_side;
     double inner_block_min_width;
@@ -33,7 +33,7 @@ namespace Mesher {
     template <typename T>
     T readFromMap(std::unordered_map<std::string, std::string> &key_value_map, char const * name);
 
-    void readConfig();
+    void readConfig(char const *config_path);
     void printHeaders();
   };
 } // Mesher

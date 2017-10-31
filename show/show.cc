@@ -30,16 +30,19 @@ void normalizePts(vector<Type::Point> &pts){
   for (auto &pt : pts){
     pt.position.x -= x_min;
     pt.position.x *= 1000.f / (x_max - x_min);
-
     pt.position.y -= y_min;
     pt.position.y *= 1000.f / (y_max - y_min);
   }
 }
 
-int main()
+int main(int argc, char **argv)
 {
+  if (argc != 2){
+    cout << "Must give exactly one argument, namely the config file path.\n";
+    return 1;
+  }
   try {
-    Mesher::Config config;
+    Mesher::Config config(argv[1]);
     Mesher::buildMesh(config);
   } catch (Exc &e){
     cout << e << '\n';
@@ -89,31 +92,29 @@ int main()
   bool showOrientation = false;
   while (window.isOpen())
   {
-      sf::Event event;
-      while (window.pollEvent(event))
-      {
-          if (event.type == sf::Event::Closed)
-              window.close();
-          if (event.type == sf::Event::EventType::KeyPressed)
+    sf::Event event;
+    while (window.pollEvent(event))
+    {
+        if (event.type == sf::Event::Closed)
+            window.close();
+        if (event.type == sf::Event::EventType::KeyPressed)
+        {
+          if (event.key.code == sf::Keyboard::O)
           {
-            if (event.key.code == sf::Keyboard::O)
-            {
-              showOrientation = not showOrientation;
-            }
+            showOrientation = not showOrientation;
           }
+        }
+    }
+    window.clear(sf::Color::Black);
+    for (size_t i = 0; i < quads.size(); i += 5)
+      window.draw(quads.data() + i, 5, sf::LinesStrip);
 
-      }
+    if (showOrientation)
+      for (size_t i = 0; i < orientation.size(); i += 3)
+        window.draw(orientation.data() + i, 3, sf::LinesStrip);
 
-      window.clear(sf::Color::Black);
-      for (size_t i = 0; i < quads.size(); i += 5)
-        window.draw(quads.data() + i, 5, sf::LinesStrip);
-
-      if (showOrientation)
-        for (size_t i = 0; i < orientation.size(); i += 3)
-          window.draw(orientation.data() + i, 3, sf::LinesStrip);
-
-      window.draw(pts.data(), pts.size(), sf::Points);
-      window.display();
+    window.draw(pts.data(), pts.size(), sf::Points);
+    window.display();
   }
   return 0;
 }

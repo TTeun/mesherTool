@@ -7,8 +7,8 @@
 using namespace std;
 
 namespace Mesher {
-  Config::Config(){
-    readConfig();
+  Config::Config(char const * config_path){
+    readConfig(config_path);
     inner_block_count     = ceil(inner_square_side / inner_block_min_width);
     if (inner_block_count % 2)
       ++inner_block_count;
@@ -49,8 +49,8 @@ namespace Mesher {
     return result;
   }
 
-  void Config::readConfig(){
-    ifstream conf = IO::open_ifstream("config.cfg", std::ofstream::in);
+  void Config::readConfig(char const * config_path){
+    ifstream conf = IO::open_ifstream(config_path, std::ofstream::in);
     string line;
     unordered_map<string, string> key_value_map;
     string key, value;
