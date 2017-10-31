@@ -36,7 +36,6 @@ namespace Mesher {
     return result;
   }
 
-
   template <typename T>
   T Config::readFromMap(unordered_map<string, string> &key_value_map, char const * name){
     string str_name(name);

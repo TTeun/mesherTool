@@ -8,8 +8,6 @@
 #include "../exc/exc.h"
 #include <cstddef>
 
-using namespace std;
-
 namespace Mesher {
 
   struct Config {
@@ -30,10 +28,10 @@ namespace Mesher {
     std::ofstream poly;
 
     template<typename T>
-    T string_to_T(string const &str);
+    T string_to_T(std::string const &str);
 
     template <typename T>
-    T readFromMap(unordered_map<string, string> &key_value_map, char const * name);
+    T readFromMap(std::unordered_map<std::string, std::string> &key_value_map, char const * name);
 
     void readConfig();
     void printHeaders();
