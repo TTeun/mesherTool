@@ -1,30 +1,21 @@
-CC=g++-7
-CFLAGS=-c  -pedantic -Werror -std=c++17
+CC=g++
+CFLAGS=-pedantic -Wall -std=c++11
 LFLAGS=-O3
 SFMLFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 
 all: tool
 
-tool: show.o mesher.o point.o io.o exc.o config.o
-	$(CC) -o tool $< point.o mesher.o io.o exc.o config.o $(SFMLFLAGS) -lm $(LFLAGS)
+tool: Mesh2D.o main.o config.o io.o
+	$(CC) -o tool Mesh2D.o main.o io.o config.o $(SFMLFLAGS) $(CFLAGS) -lm $(LFLAGS)
 
-io.o: IO/io.cc IO/io.h
-	$(CC) $< $(CFLAGS)
+Mesh2D.o: Mesh2D.cc Mesh2D.h
+	$(CC) -c $< $(CFLAGS)
 
-exc.o: exc/exc.cc exc/exc.h
-	$(CC) $< $(CFLAGS)
+config.o: config.cc config.h
+	$(CC) -c $< $(CFLAGS)
 
-show.o: show/show.cc
-	$(CC) $< $(CFLAGS)
-
-config.o: config/config.cc config/config.h
-	$(CC) $< $(CFLAGS)
-
-mesher.o: mesher/mesher.cc mesher/mesher.h
-	$(CC) $< $(CFLAGS)
-
-point.o: show/types/point.cc show/types/point.h
-	$(CC) $< $(CFLAGS)
+io.o: io.cc io.h
+	$(CC) -c $< $(CFLAGS)
 
 .PHONY: clean
 clean:
