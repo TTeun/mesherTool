@@ -181,14 +181,12 @@ struct SquareAroundCircleCoordinates {
   SquareAroundCircleCoordinates(const double circleRadius, const double squareSize, const size_t numberOfSteps, const Config &cf)
     : _circleRadius(circleRadius), _squareSize(squareSize), _numberOfSteps(numberOfSteps), _cf(cf) {}
 
-
   std::pair<double, double> getXY(const long col, const long rad)
   {
     const double s     = col / static_cast<double>(_cf.half_inner_block_count);
     const double phi   = M_PI * s / 4.0;
     const double x = _circleRadius + rad * (_squareSize - _circleRadius) / static_cast<double>(_numberOfSteps);
     return std::make_pair(x, std::tan(phi) * x);
-    // 2 * _squareSize * static_cast<double>(col) / static_cast<double>(_cf.half_inner_block_count + 1));
   }
 
   const double _circleRadius;

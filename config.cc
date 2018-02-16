@@ -25,9 +25,9 @@ Config::Config(char const * config_path)
   const double k   = num / den;
   pipe_steps       = std::ceil(k);
   pipe_steps = 12;
-  outer_steps = 7;
+  outer_steps = 5;
   total_steps = pipe_steps + nozzle_steps + outer_steps;
-  outer_square_side = pipe_radius * 1.2;
+  outer_square_side = pipe_radius * 1.15;
 }
 
 
