@@ -8,6 +8,7 @@ struct Config {
   Config(char const *config_path = "config.cfg");
 
   double inner_square_side;
+  double outer_square_side;
   double inner_block_min_width;
   double inner_block_width;
   double half_square_size;
@@ -20,6 +21,8 @@ struct Config {
   double pipe_radius;
 
   size_t outer_steps;
+
+  size_t total_steps;
 
   double alpha;
   double alpha_connection;

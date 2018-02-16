@@ -54,10 +54,10 @@ void Mesh2D::normalizePts(std::vector<Vertex> &pts)
     y_min = std::min(y_min, pt.position.y);
     y_max = std::max(y_max, pt.position.y);
   }
-  x_min--;
-  x_max++;
-  y_min--;
-  y_max++;
+  x_min -= .1;
+  x_max += .1;
+  y_min -= .1;
+  y_max += .1;
   for (auto &pt : pts) {
     pt.position.x -= x_min;
     pt.position.x *= 1000.f / (x_max - x_min);
@@ -137,23 +137,26 @@ struct CircleAroundSquareCoordinates {
   double _phi;
   double _h_a;
   double _d_a;
-  const Config _cf;
+  const Config& _cf;
 };
 
 struct CircleCoordinates {
-  CircleCoordinates(double inner_radius, double outer_radius, size_t numSteps, const Config &cf)
-    : _inner_radius(inner_radius), _outer_radius(outer_radius), _numSteps(numSteps), _cf(cf)
+  CircleCoordinates(double inner_radius, double outer_radius, size_t numberOfSteps, const Config &cf)
+    : _inner_radius(inner_radius), _outer_radius(outer_radius), _numberOfSteps(numberOfSteps), _cf(cf)
   {
     const double dr = _outer_radius - _inner_radius;
-    const double d = _numSteps * dr + dr * (_numSteps - 1.) / 2.;
+    const double d = _numberOfSteps * _inner_radius + dr * (_numberOfSteps + 1.) / 2.;
     _c = dr / d;
     _r = _inner_radius;
   }
 
 
-  std::pair<double , double> getXY(const double col, const double rad)
+  std::pair<double , double> getXY(const long col, const long rad)
   {
-    _r += _c * (_inner_radius + rad / static_cast<double>(_numSteps) * (_outer_radius - _inner_radius));
+    _r += (1.) / static_cast<double>(_numberOfSteps) * (_outer_radius - _inner_radius);
+    // const double dr = _outer_radius - _inner_radius;
+    // _r =  _inner_radius + _c * (rad * (rad - 1)) * dr / static_cast<double>(dr);
+    // std::cout << _r << '\n';
     return std::make_pair(_r * cos(_phi), _r * sin(_phi));
   }
 
@@ -161,9 +164,6 @@ struct CircleCoordinates {
   {
     _s    = col / static_cast<double>(_cf.half_inner_block_count);
     _phi = M_PI * _s / 4.0;
-    const double dr = _outer_radius - _inner_radius;
-    const double d = _numSteps * dr + dr * (_numSteps - 1.) / 2.;
-    _c = dr / d;
     _r = _inner_radius;
   }
 
@@ -173,16 +173,40 @@ struct CircleCoordinates {
   double _phi;
   const double _inner_radius;
   const double _outer_radius;
-  const size_t _numSteps;
-  const Config _cf;
+  const size_t _numberOfSteps;
+  const Config& _cf;
 };
+
+struct SquareAroundCircleCoordinates {
+  SquareAroundCircleCoordinates(const double circleRadius, const double squareSize, const size_t numberOfSteps, const Config &cf)
+    : _circleRadius(circleRadius), _squareSize(squareSize), _numberOfSteps(numberOfSteps), _cf(cf) {}
+
+
+  std::pair<double, double> getXY(const long col, const long rad)
+  {
+    const double s     = col / static_cast<double>(_cf.half_inner_block_count);
+    const double phi   = M_PI * s / 4.0;
+    const double x = _circleRadius + rad * (_squareSize - _circleRadius) / static_cast<double>(_numberOfSteps);
+    return std::make_pair(x, std::tan(phi) * x);
+    // 2 * _squareSize * static_cast<double>(col) / static_cast<double>(_cf.half_inner_block_count + 1));
+  }
+
+  const double _circleRadius;
+  const double _squareSize;
+  const size_t _numberOfSteps;
+  const Config& _cf;
+};
+
 
 void Mesh2D::buildCircleQuadrant(Config & cf, size_t qdrnt)
 {
   CircleAroundSquareCoordinates circleAroundSquareCoordinates(cf);
+  CircleCoordinates circ(cf.nozzle_radius, cf.pipe_radius, cf.pipe_steps, cf);
+  SquareAroundCircleCoordinates sqr(cf.pipe_radius, cf.outer_square_side, cf.outer_steps, cf);
   double x;
   double y;
-  CircleCoordinates circ(cf.nozzle_radius, cf.pipe_radius, cf.pipe_steps, cf);
+  double x_s;
+  double y_s;
   for (long col = -static_cast<long>(cf.half_inner_block_count);
        col != static_cast<long>(cf.half_inner_block_count);
        ++col) {
@@ -203,15 +227,27 @@ void Mesh2D::buildCircleQuadrant(Config & cf, size_t qdrnt)
       }
       _vertices.push_back(new Vertex(sf::Vector2f(x, y)));
     }
+    double blend = 0.;
+    for (long rad = 1; rad <= static_cast<long>(cf.outer_steps); ++rad) {
+      std::tie(x, y) = circ.getXY(col, 0);
+      std::tie(x_s, y_s) = sqr.getXY(col, rad + cf.pipe_steps);
+      for (size_t q = 0; q != qdrnt; ++q) {
+        std::tie(x, y) = std::make_pair(-y, x);
+        std::tie(x_s, y_s) = std::make_pair(-y_s, x_s);
+      }
+      std::tie(x, y) = std::make_pair((1 - blend) * x +  blend * x_s, (1 - blend) * y + blend * y_s);
+      blend += 1. / (cf.outer_steps - 1);
+      _vertices.push_back(new Vertex(sf::Vector2f(x, y)));
+    }
   }
 }
 
-void Mesh2D::buildSquareQuadrantVertices(Config &cf, size_t qdrnt)
+void Mesh2D::buildSquareQuadrantVertices(Config & cf, size_t qdrnt)
 {
   for (long col = -static_cast<long>(cf.half_inner_block_count);
        col != static_cast<long>(cf.half_inner_block_count);
        ++col) {
-    for (long row = 1; row != static_cast<long>(cf.nozzle_steps) + cf.pipe_steps; ++row) {
+    for (long row = 1; row != static_cast<long>(cf.total_steps); ++row) {
       double y = col;
       double x = 0.5 * cf.inner_square_side + row * cf.inner_block_width;
       for (size_t q = 0; q != qdrnt; ++q) {
@@ -223,48 +259,48 @@ void Mesh2D::buildSquareQuadrantVertices(Config &cf, size_t qdrnt)
 }
 
 void Mesh2D::buildQuadrantFaces( // The horror
-  Config &cf,
+  Config & cf,
   size_t index_offset,
   long index_increment,
   size_t connecting_index,
   size_t qdrnt)
 {
   for (long col = 0; col != static_cast<long>(cf.inner_block_count) - 1; ++col) {
-    for (long rad = 0; rad + 2 != static_cast<long>((cf.nozzle_steps + cf.pipe_steps)); ++rad) {
-      size_t base_index_inner = col * ((cf.nozzle_steps + cf.pipe_steps) - 1) + rad + index_offset;
+    for (long rad = 0; rad + 2 != static_cast<long>((cf.total_steps)); ++rad) {
+      size_t base_index_inner = col * ((cf.total_steps) - 1) + rad + index_offset;
       _faces.push_back(
-        new Face {_vertices[base_index_inner], _vertices[base_index_inner + 1], _vertices[base_index_inner + (cf.nozzle_steps + cf.pipe_steps)], _vertices[base_index_inner + (cf.nozzle_steps + cf.pipe_steps) - 1] });
+        new Face {_vertices[base_index_inner], _vertices[base_index_inner + 1], _vertices[base_index_inner + (cf.total_steps)], _vertices[base_index_inner + (cf.total_steps) - 1] });
     }
     if (qdrnt == 0 || qdrnt == 3) {
       size_t base_index       = col * index_increment + connecting_index;
-      size_t base_index_inner = col * ((cf.nozzle_steps + cf.pipe_steps) - 1) + index_offset;
+      size_t base_index_inner = col * ((cf.total_steps) - 1) + index_offset;
       _faces.push_back(
-        new Face {_vertices[base_index], _vertices[base_index_inner], _vertices[base_index_inner + (cf.nozzle_steps + cf.pipe_steps) - 1], _vertices[base_index + index_increment] });
+        new Face {_vertices[base_index], _vertices[base_index_inner], _vertices[base_index_inner + (cf.total_steps) - 1], _vertices[base_index + index_increment] });
     } else if (qdrnt == 1 || qdrnt == 2) {
       size_t base_index       = connecting_index - col * index_increment;
-      size_t base_index_inner = col * ((cf.nozzle_steps + cf.pipe_steps) - 1) + index_offset;
+      size_t base_index_inner = col * ((cf.total_steps) - 1) + index_offset;
       _faces.push_back(
-        new Face {_vertices[base_index_inner], _vertices[base_index + index_increment], _vertices[base_index], _vertices[base_index_inner + (cf.nozzle_steps + cf.pipe_steps) - 1] });
+        new Face {_vertices[base_index_inner], _vertices[base_index + index_increment], _vertices[base_index], _vertices[base_index_inner + (cf.total_steps) - 1] });
     }
   }
   if (qdrnt < 3) {
     if (qdrnt == 0) {
-      for (long rad = 0; rad + 2 != static_cast<long>((cf.nozzle_steps + cf.pipe_steps)); ++rad) {
+      for (long rad = 0; rad + 2 != static_cast<long>((cf.total_steps)); ++rad) {
         size_t base_index_inner = rad + index_offset;
         _faces.push_back(
         new Face {
           _vertices[base_index_inner],
           _vertices[base_index_inner + 1],
-          _vertices[base_index_inner + (cf.inner_block_count - 1) * ((cf.nozzle_steps + cf.pipe_steps) - 1) + 3 * (cf.inner_block_count ) * ((cf.nozzle_steps + cf.pipe_steps) - 1) + 1 ],
-          _vertices[base_index_inner + (cf.inner_block_count - 1) * ((cf.nozzle_steps + cf.pipe_steps) - 1) + 3 * (cf.inner_block_count ) * ((cf.nozzle_steps + cf.pipe_steps) - 1)] });
+          _vertices[base_index_inner + (cf.inner_block_count - 1) * ((cf.total_steps) - 1) + 3 * (cf.inner_block_count ) * ((cf.total_steps) - 1) + 1 ],
+          _vertices[base_index_inner + (cf.inner_block_count - 1) * ((cf.total_steps) - 1) + 3 * (cf.inner_block_count ) * ((cf.total_steps) - 1)] });
       }
     }
-    for (long rad = 0; rad + 2 != static_cast<long>((cf.nozzle_steps + cf.pipe_steps)); ++rad) {
+    for (long rad = 0; rad + 2 != static_cast<long>((cf.total_steps)); ++rad) {
       long col = static_cast<long>(cf.inner_block_count) - 1;
-      size_t base_index_inner = col * ((cf.nozzle_steps + cf.pipe_steps) - 1) + rad + index_offset;
+      size_t base_index_inner = col * ((cf.total_steps) - 1) + rad + index_offset;
       _faces.push_back(
-        new Face {_vertices[base_index_inner], _vertices[base_index_inner + 1], _vertices[base_index_inner + (cf.nozzle_steps + cf.pipe_steps)],
-                  _vertices[base_index_inner + (cf.nozzle_steps + cf.pipe_steps) - 1] });
+        new Face {_vertices[base_index_inner], _vertices[base_index_inner + 1], _vertices[base_index_inner + (cf.total_steps)],
+                  _vertices[base_index_inner + (cf.total_steps) - 1] });
     }
   }
 }
@@ -281,11 +317,11 @@ void Mesh2D::buildMesh(Config & cf)
   size_t index_offset = (cf.inner_block_count + 1) * (cf.inner_block_count + 1);
   for (size_t qdrnt = 0; qdrnt != 4; ++qdrnt) {
     buildCircleQuadrant(cf, qdrnt);
-    index_offset += (cf.inner_block_count + 1) * (cf.nozzle_steps + cf.pipe_steps - 1);
+    index_offset += (cf.inner_block_count + 1) * (cf.total_steps - 1);
   }
   index_offset = (cf.inner_block_count + 1) * (cf.inner_block_count + 1);
   for (size_t qdrnt = 0; qdrnt != 4; ++qdrnt) {
     buildQuadrantFaces(cf, index_offset, index_increments[qdrnt], connecting_indices[qdrnt], qdrnt);
-    index_offset += cf.inner_block_count * (cf.nozzle_steps + cf.pipe_steps - 1);
+    index_offset += cf.inner_block_count * (cf.total_steps - 1);
   }
 }

@@ -13,12 +13,21 @@ Config::Config(char const * config_path)
   if (inner_block_count % 2) {
     ++inner_block_count;
   }
-  inner_block_width       = inner_square_side / inner_block_count;
-  half_inner_block_count  = inner_block_count / 2;
-  half_square_size        = inner_square_side / 2;
-  nozzle_steps            = (nozzle_radius - half_square_size) / inner_block_width + 1;
-  pipe_steps              = 6;
-  outer_steps             = pipe_steps + nozzle_steps;
+  inner_block_width      = inner_square_side / inner_block_count;
+  half_inner_block_count = inner_block_count / 2;
+  half_square_size       = inner_square_side / 2;
+  nozzle_steps           = (nozzle_radius - half_square_size) / inner_block_width + 1;
+  const double dr  = pipe_radius - nozzle_radius;
+  std::cout << dr << '\n';
+  const double phi = M_PI / (2. * static_cast<double>(half_inner_block_count));
+  const double num = dr / phi - dr / 2.;
+  const double den = nozzle_radius + dr / 2.;
+  const double k   = num / den;
+  pipe_steps       = std::ceil(k);
+  pipe_steps = 12;
+  outer_steps = 7;
+  total_steps = pipe_steps + nozzle_steps + outer_steps;
+  outer_square_side = pipe_radius * 1.2;
 }
 
 
