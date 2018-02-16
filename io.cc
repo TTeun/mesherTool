@@ -2,7 +2,8 @@
 #include <iostream>
 
 namespace IO {
-ofstream open_ofstream(char const * path, ios_base::openmode mode) {
+ofstream open_ofstream(char const * path, ios_base::openmode mode)
+{
   ofstream str(path, mode);
   if (not str.is_open()) {
     string error("Could not open file ");
@@ -12,7 +13,8 @@ ofstream open_ofstream(char const * path, ios_base::openmode mode) {
   return str;
 }
 
-ifstream open_ifstream(char const * path, ios_base::openmode mode) {
+ifstream open_ifstream(char const * path, ios_base::openmode mode)
+{
   ifstream str(path, mode);
   if (not str.is_open()) {
     string error("Could not open file ");

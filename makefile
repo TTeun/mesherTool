@@ -1,21 +1,24 @@
 CC=g++
-CFLAGS=-pedantic -Wall -std=c++11
+CFLAGS=-pedantic -Wall -pedantic 
 LFLAGS=-O3
 SFMLFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 
 all: tool
 
-tool: Mesh2D.o main.o config.o io.o
-	$(CC) -o tool Mesh2D.o main.o io.o config.o $(SFMLFLAGS) $(CFLAGS) -lm $(LFLAGS)
+tool: Mesh2D.o config.o io.o main.o
+	$(CC) -o tool *.o $(SFMLFLAGS) $(CFLAGS) -lm $(LFLAGS)
+
+main.o: main.cc 
+	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
 Mesh2D.o: Mesh2D.cc Mesh2D.h
-	$(CC) -c $< $(CFLAGS)
+	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
 config.o: config.cc config.h
-	$(CC) -c $< $(CFLAGS)
+	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
 io.o: io.cc io.h
-	$(CC) -c $< $(CFLAGS)
+	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
 .PHONY: clean
 clean:

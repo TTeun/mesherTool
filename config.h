@@ -1,11 +1,8 @@
 #ifndef __CONFIG__H
 #define __CONFIG__H
 
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <unordered_map>
-#include <cstddef>
 
 struct Config {
   Config(char const *config_path = "config.cfg");
@@ -17,8 +14,13 @@ struct Config {
 
   size_t inner_block_count;
   size_t half_inner_block_count;
+  size_t nozzle_steps;
+  double nozzle_radius;
+  size_t pipe_steps;
+  double pipe_radius;
+
   size_t outer_steps;
-  double circle_radius;
+
   double alpha;
   double alpha_connection;
 
