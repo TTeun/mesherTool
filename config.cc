@@ -28,9 +28,9 @@ Config::Config(char const *configPath)
 
   pipeSteps       = std::ceil(k);
   pipeSteps       = 12;
-  outerSteps      = 5;
-  totalSteps      = pipeSteps + nozzleSteps + outerSteps;
-  outerSquareSide = pipeRadius * 1.15;
+  outerSteps      = 7;
+  totalSteps      = pipeSteps + nozzleSteps + outerSteps + 1;
+  outerSquareSide = pipeRadius * 1.25;
 }
 
 template <typename T>
