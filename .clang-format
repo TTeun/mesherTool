@@ -1,0 +1,22 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+AlignAfterOpenBracket: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: false
+AllowShortBlocksOnASingleLine: false
+AlwaysBreakTemplateDeclarations: true
+BinPackParameters: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterEnum: false
+  AfterStruct: false
+  SplitEmptyFunction: false
+  AfterFunction: false
+  AfterNamespace: false
+BreakConstructorInitializers: BeforeColon
+BinPackArguments: false
+AllowAllParametersOfDeclarationOnNextLine: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+BreakBeforeBraces: Allman
+MaxEmptyLinesToKeep: 1
+ColumnLimit: 110
