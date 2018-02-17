@@ -2,8 +2,9 @@ BasedOnStyle: LLVM
 IndentWidth: 2
 AlignAfterOpenBracket: true
 AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: false
+AlignConsecutiveDeclarations: true
 AllowShortBlocksOnASingleLine: false
+PointerAlignment: Right
 AlwaysBreakTemplateDeclarations: true
 BinPackParameters: false
 BreakBeforeBraces: Custom

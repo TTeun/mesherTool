@@ -5,8 +5,8 @@ SFMLFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 
 all: tool
 
-tool: Mesh2D.o config.o io.o main.o
-	$(CC) -o tool *.o $(SFMLFLAGS) $(CFLAGS) -lm $(LFLAGS)
+tool: Mesh2D.o config.o io.o CoordinateHelper.o main.o
+	$(CC) *.o $(SFMLFLAGS) $(CFLAGS) -lm $(LFLAGS) -o tool
 
 main.o: main.cc 
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
@@ -18,6 +18,9 @@ config.o: config.cc config.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
 io.o: io.cc io.h
+	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
+
+CoordinateHelper.o: CoordinateHelper.cc CoordinateHelper.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
 .PHONY: clean

@@ -1,42 +1,45 @@
 #include "config.h"
 #include "io.h"
 #include <cmath>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 using namespace std;
 
-Config::Config(char const * config_path)
+Config::Config(char const *configPath)
 {
-  readConfig(config_path);
-  inner_block_count     = ceil(inner_square_side / inner_block_min_width);
-  if (inner_block_count % 2) {
-    ++inner_block_count;
+  readConfig(configPath);
+  innerBlockCount = ceil(innerSquareSide / innerBlockMinWidth);
+  if (innerBlockCount % 2)
+  {
+    ++innerBlockCount;
   }
-  inner_block_width      = inner_square_side / inner_block_count;
-  half_inner_block_count = inner_block_count / 2;
-  half_square_size       = inner_square_side / 2;
-  nozzle_steps           = (nozzle_radius - half_square_size) / inner_block_width + 1;
-  const double dr  = pipe_radius - nozzle_radius;
-  std::cout << dr << '\n';
-  const double phi = M_PI / (2. * static_cast<double>(half_inner_block_count));
+
+  innerBlockWidth     = innerSquareSide / innerBlockCount;
+  halfInnerBlockCount = innerBlockCount / 2;
+  halfSquareSize      = innerSquareSide / 2;
+  nozzleSteps         = (nozzleRadius - halfSquareSize) / innerBlockWidth + 1;
+
+  const double dr  = pipeRadius - nozzleRadius;
+  const double phi = M_PI / (2. * static_cast<double>(halfInnerBlockCount));
   const double num = dr / phi - dr / 2.;
-  const double den = nozzle_radius + dr / 2.;
+  const double den = nozzleRadius + dr / 2.;
   const double k   = num / den;
-  pipe_steps       = std::ceil(k);
-  pipe_steps = 12;
-  outer_steps = 5;
-  total_steps = pipe_steps + nozzle_steps + outer_steps;
-  outer_square_side = pipe_radius * 1.15;
+
+  pipeSteps       = std::ceil(k);
+  pipeSteps       = 12;
+  outerSteps      = 5;
+  totalSteps      = pipeSteps + nozzleSteps + outerSteps;
+  outerSquareSide = pipeRadius * 1.15;
 }
 
-
-template<typename T>
+template <typename T>
 T Config::string_to_T(string const &str)
 {
-  T result;
+  T            result;
   stringstream sstream(str);
-  if (not (sstream >> result)) {
+  if (not(sstream >> result))
+  {
     string error("Cannot not convert ");
     error.append(str);
     error.append(" to appropriate value\n");
@@ -46,41 +49,44 @@ T Config::string_to_T(string const &str)
 }
 
 template <typename T>
-T Config::readFromMap(unordered_map<string, string> &key_value_map, char const * name)
+T Config::readFromMap(unordered_map<string, string> &keyValueMap, char const *name)
 {
-  string str_name(name);
-  if (key_value_map.find(str_name) == key_value_map.end()) {
-    str_name.append(" could not be found in config file!");
-    std::cout << str_name << '\n';
+  string stringName(name);
+  if (keyValueMap.find(stringName) == keyValueMap.end())
+  {
+    stringName.append(" could not be found in config file!");
+    std::cout << stringName << '\n';
   }
-  T result = string_to_T<T>( key_value_map[name] );
-  cout << std::setfill ('.') << std::setw(30) << left << name << "\t" << result << '\n';
+  T result = string_to_T<T>(keyValueMap[name]);
+  cout << std::setfill('.') << std::setw(30) << left << name << "\t" << result << '\n';
   return result;
 }
 
-void Config::readConfig(char const * config_path)
+void Config::readConfig(char const *configPath)
 {
-  ifstream conf = IO::open_ifstream(config_path, std::ofstream::in);
-  string line;
-  unordered_map<string, string> key_value_map;
-  string key, value;
-  while (getline(conf, line)) {
+  ifstream                      conf = IO::open_ifstream(configPath, std::ofstream::in);
+  string                        line;
+  unordered_map<string, string> keyValueMap;
+  string                        key, value;
+  while (getline(conf, line))
+  {
     stringstream lineStream(line);
     lineStream >> key >> value;
-    if (key_value_map.find(key) != key_value_map.end()) {
+    if (keyValueMap.find(key) != keyValueMap.end())
+    {
       string error("Double definition of ");
       error.append(key);
       error.append(" in configuration file");
       std::cout << error << '\n';
     }
-    key_value_map.insert(make_pair(key, value));
+    keyValueMap.insert(make_pair(key, value));
   }
-  inner_square_side     = readFromMap<double>(key_value_map, "inner_square_side");
-  inner_block_min_width = readFromMap<double>(key_value_map, "inner_block_min_width");
-  nozzle_radius         = readFromMap<double>(key_value_map, "nozzle_radius");
-  pipe_radius           = readFromMap<double>(key_value_map, "pipe_radius");
-  alpha                 = readFromMap<double>(key_value_map, "alpha");
-  alpha_connection      = readFromMap<double>(key_value_map, "alpha_connection");
+
+  innerSquareSide    = readFromMap<double>(keyValueMap, "innerSquareSide");
+  innerBlockMinWidth = readFromMap<double>(keyValueMap, "innerBlockMinWidth");
+  nozzleRadius       = readFromMap<double>(keyValueMap, "nozzleRadius");
+  pipeRadius         = readFromMap<double>(keyValueMap, "pipeRadius");
+  alpha              = readFromMap<double>(keyValueMap, "alpha");
+  alphaConnection    = readFromMap<double>(keyValueMap, "alphaConnection");
   cout << "Config file read succesfully\n\n";
 }
-
