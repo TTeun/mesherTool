@@ -7,10 +7,10 @@ T sq(const T &val)
   return val * val;
 }
 
-Region2::Region2(double innerRadius, double outerRadius, size_t numberOfSteps, const Config &config)
-    : _innerRadius(innerRadius),
-      _outerRadius(outerRadius),
-      _numberOfSteps(numberOfSteps),
+Region2::Region2(const Config &config)
+    : _innerRadius(config.nozzleRadius),
+      _outerRadius(config.pipeRadius),
+      _numberOfSteps(config.pipeSteps),
       _dr((_outerRadius - _innerRadius) / static_cast<double>(_numberOfSteps)),
       _config(config)
 {

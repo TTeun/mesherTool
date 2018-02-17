@@ -5,7 +5,7 @@
 
 struct Region2
 {
-  Region2(double innerRadius, double outerRadius, size_t numberOfSteps, const Config &config);
+  Region2(const Config &config);
 
   std::pair<double, double> getCoords(const long radialIndex) const;
 

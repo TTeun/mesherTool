@@ -5,13 +5,10 @@
 
 struct Region3
 {
-  Region3(const double  circleRadius,
-          const double  squareSize,
-          const size_t  numberOfSteps,
-          const Config &config)
-      : _pipeRadius(circleRadius),
-        _squareSize(squareSize),
-        _numberOfSteps(numberOfSteps),
+  Region3(const Config &config)
+      : _pipeRadius(config.pipeRadius),
+        _squareSize(config.outerSquareSide),
+        _numberOfSteps(config.outerSteps),
         _dr((_squareSize - _pipeRadius) / static_cast<double>(_numberOfSteps)),
         _config(config)
   {

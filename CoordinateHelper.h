@@ -19,10 +19,7 @@ public:
   };
 
   CoordinateHelper(const Config &config)
-      : _config(config),
-        _region1(config),
-        _region2(config.nozzleRadius, config.pipeRadius, config.pipeSteps, config),
-        _region3(config.pipeRadius, config.outerSquareSide, config.outerSteps, config)
+      : _config(config), _region1(config), _region2(config), _region3(config)
   {
   }
 
@@ -37,6 +34,8 @@ public:
   std::pair<double, double> getCoords(const long radialIndex, Region region, size_t quadrant);
 
 private:
+  void swapCoordsToQuadrant(size_t quadrant, std::pair<double, double> &coords);
+
   double _x;
   double _y;
   double _blend;

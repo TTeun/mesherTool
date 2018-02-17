@@ -25,7 +25,6 @@ std::pair<double, double> CoordinateHelper::getCoords(const long radialIndex, Re
     return std::make_pair(x, y);
     break;
   case R3:
-
     std::tie(x, y) = _region2.getCoords(_config.pipeSteps);
     double xS, yS;
     std::tie(xS, yS) = _region3.getCoords(radialIndex + _config.pipeSteps);
@@ -41,4 +40,22 @@ std::pair<double, double> CoordinateHelper::getCoords(const long radialIndex, Re
   }
 
   return std::pair<double, double>(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+}
+
+void CoordinateHelper::swapCoordsToQuadrant(size_t quadrant, std::pair<double, double> &coords)
+{
+  switch (quadrant)
+  {
+  case 0:
+    return;
+  case 1:
+    std::tie(coords.first, coords.second) = std::make_pair(-coords.second, coords.first);
+    return;
+  case 2:
+    std::tie(coords.first, coords.second) = std::make_pair(-coords.first, -coords.second);
+    return;
+  case 3:
+    std::tie(coords.first, coords.second) = std::make_pair(coords.second, -coords.first);
+    return;
+  }
 }
