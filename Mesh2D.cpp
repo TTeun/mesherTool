@@ -28,30 +28,33 @@ void Mesh2D::normalizePoints(std::vector<sf::Vertex> &points,
   yMax *= scaler;
   for (auto &pt : points) {
     pt.position.x -= xMin;
-    pt.position.x *= 1000.f / (xMax - xMin);
+    pt.position.x *= 750.f / (xMax - xMin);
     pt.position.y -= yMin;
-    pt.position.y *= 1000.f / (yMax - yMin);
+    pt.position.y *= 750.f / (yMax - yMin);
   }
   for (auto &pt : quads) {
     pt.position.x -= xMin;
-    pt.position.x *= 1000.f / (xMax - xMin);
+    pt.position.x *= 750.f / (xMax - xMin);
     pt.position.y -= yMin;
-    pt.position.y *= 1000.f / (yMax - yMin);
+    pt.position.y *= 750.f / (yMax - yMin);
   }
 }
 
 void Mesh2D::showMesh() {
-  sf::Color               grey(190, 190, 190);
-  sf::RenderWindow        window(sf::VideoMode(1000, 1000), "Mesh!");
+  sf::Color        grey(190, 190, 190);
+  sf::RenderWindow window(sf::VideoMode(750, 750), "Mesh!");
+
   std::vector<sf::Vertex> quads;
   for (auto faceIt = _faces.begin(); faceIt != _faces.end(); ++faceIt) {
-    for (auto vertIt = (*faceIt)->begin(); vertIt != (*faceIt)->end(); ++vertIt) {
+    assert((*faceIt)->getEdges().size() == 4);
+    for (auto vertIt = (*faceIt)->getVertices().begin(); vertIt != (*faceIt)->getVertices().end(); ++vertIt) {
       quads.push_back(sf::Vertex((**vertIt).position, sf::Color::Black));
     }
-    quads.push_back(sf::Vertex((**((*faceIt)->begin())).position, sf::Color::Black));
+    quads.push_back(sf::Vertex((**((*faceIt)->getVertices().begin())).position, sf::Color::Black));
   }
+
   std::vector<sf::Vertex> points;
-  for (auto vertIt = _vertices.begin(); vertIt != _vertices.end(); ++vertIt) {
+  for (auto vertIt = getVertices().begin(); vertIt != getVertices().end(); ++vertIt) {
     points.push_back(sf::Vertex((**vertIt).position, sf::Color::Black));
   }
   normalizePoints(points, quads);
@@ -62,9 +65,6 @@ void Mesh2D::showMesh() {
       if (event.type == sf::Event::Closed) {
         window.close();
       }
-      // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-      //   normalizePoints(points, quads, 2.);
-      // }
     }
     window.clear(grey);
     for (size_t i = 0; i < quads.size(); i += 5) {
@@ -76,13 +76,14 @@ void Mesh2D::showMesh() {
 }
 
 void Mesh2D::addFace(size_t idx0, size_t idx1, size_t idx2, size_t idx3) {
-  _faces.push_back(std::unique_ptr<Face2D>(
-      new Face2D{_vertices[idx0], _vertices[idx1], _vertices[idx2], _vertices[idx3]}));
+  _faces.push_back(std::unique_ptr<Face2D>(new Face2D{
+      _vertices[idx0].get(), _vertices[idx1].get(), _vertices[idx2].get(), _vertices[idx3].get()}));
   addEdgesFromFace(_faces.back().get());
 }
 
 void Mesh2D::addEdgesFromFace(Face2D *addedFace) {
-  for (auto vertIt = addedFace->begin(); vertIt + 1 != addedFace->end(); ++vertIt) {
+  for (auto vertIt = addedFace->getVertices().begin(); vertIt + 1 != addedFace->getVertices().end();
+       ++vertIt) {
     auto sortedIndices = std::make_pair(std::min((*vertIt)->_index, (*(vertIt + 1))->_index),
                                         std::max((*vertIt)->_index, (*(vertIt + 1))->_index));
 
@@ -92,5 +93,6 @@ void Mesh2D::addEdgesFromFace(Face2D *addedFace) {
     } else {
       _edges[sortedIndices] = std::unique_ptr<Edge2D>(new Edge2D(addedFace));
     }
+    addedFace->addEdge(_edges[sortedIndices].get());
   }
 }

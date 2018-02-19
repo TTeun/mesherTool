@@ -9,8 +9,6 @@ T sq(const T &val) {
 }
 
 void buildInnerSquare(BaseConfig &baseConfig, Mesh2D &mesh) {
-  baseConfig.alpha = 0.292893218813;  // = 1 - sin(pi / 4)
-  auto &vertices   = mesh.getVertices();
   for (long yIndex = -static_cast<long>(baseConfig.halfInnerBlockCount);
        yIndex != static_cast<long>(baseConfig.halfInnerBlockCount) + 1;
        ++yIndex) {
@@ -19,10 +17,8 @@ void buildInnerSquare(BaseConfig &baseConfig, Mesh2D &mesh) {
          xIndex != static_cast<long>(baseConfig.halfInnerBlockCount) + 1;
          ++xIndex) {
       double absY = std::abs(xIndex) / static_cast<double>(baseConfig.halfInnerBlockCount);
-      vertices.push_back(new Vertex2D(
-          sf::Vector2f((1.0 - baseConfig.alpha * sq(absX)) * xIndex * baseConfig.innerBlockWidth,
-                       (1.0 - baseConfig.alpha * sq(absY)) * yIndex * baseConfig.innerBlockWidth),
-          vertices.size()));
+      mesh.addVertex((1.0 - baseConfig.alpha * sq(absX)) * xIndex * baseConfig.innerBlockWidth,
+                     (1.0 - baseConfig.alpha * sq(absY)) * yIndex * baseConfig.innerBlockWidth);
     }
   }
 
@@ -38,14 +34,14 @@ void buildInnerSquare(BaseConfig &baseConfig, Mesh2D &mesh) {
 }
 
 void buildOuterRing(BaseConfig &baseConfig, Mesh2D &mesh) {
-  // std::cout << "DASDSDASDAS";
-  auto &                         vertices = mesh.getVertices();
-  CoordinateHelper               coordinateHelper(baseConfig);
+  CoordinateHelper coordinateHelper(baseConfig);
+
   const CoordinateHelper::Region regions[3] = {
       CoordinateHelper::Nozzle, CoordinateHelper::Pipe, CoordinateHelper::Exterior};
   const size_t blockCounts[3] = {baseConfig.nozzleSteps, baseConfig.pipeSteps, baseConfig.outerSteps};
-  double       x;
-  double       y;
+
+  double x;
+  double y;
   for (size_t quadrant = 0; quadrant != 4; ++quadrant) {
     for (long yIndex = -static_cast<long>(baseConfig.halfInnerBlockCount);
          yIndex != static_cast<long>(baseConfig.halfInnerBlockCount);
@@ -54,7 +50,7 @@ void buildOuterRing(BaseConfig &baseConfig, Mesh2D &mesh) {
       for (size_t regionIdx = 0; regionIdx != 3; ++regionIdx) {
         for (size_t radialIndex = 0; radialIndex != blockCounts[regionIdx]; ++radialIndex) {
           std::tie(x, y) = coordinateHelper.getCoords(radialIndex, regions[regionIdx], quadrant);
-          vertices.push_back(new Vertex2D(sf::Vector2f(x, y), vertices.size()));
+          mesh.addVertex(x, y);
         }
       }
     }
@@ -62,7 +58,6 @@ void buildOuterRing(BaseConfig &baseConfig, Mesh2D &mesh) {
 }
 
 void buildSquareQuadrantVertices(BaseConfig &baseConfig, size_t quadrant, Mesh2D &mesh) {
-  auto &vertices = mesh.getVertices();
   for (long yIndex = -static_cast<long>(baseConfig.halfInnerBlockCount);
        yIndex != static_cast<long>(baseConfig.halfInnerBlockCount);
        ++yIndex) {
@@ -72,10 +67,11 @@ void buildSquareQuadrantVertices(BaseConfig &baseConfig, size_t quadrant, Mesh2D
       for (size_t q = 0; q != quadrant; ++q) {
         std::tie(x, y) = std::make_pair(-y, x);
       }
-      vertices.push_back(new Vertex2D(sf::Vector2f(x, y), vertices.size()));
+      mesh.addVertex(x, y);
     }
   }
 }
+
 void buildQuadrantFaces(  // The horror
     BaseConfig &baseConfig,
     size_t      indexOffset,
@@ -159,6 +155,5 @@ Mesh2D Mesh2DBuilder::buildAirBearingMesh2D() {
   Mesh2D     mesh;
   BaseConfig baseConfig;
   buildMesh(baseConfig, mesh);
-  std::cout << mesh.getFaces().size() << " faces and " << mesh.getVertices().size() << " vertices \n";
   return mesh;
 }
