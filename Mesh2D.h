@@ -3,16 +3,25 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include "BaseConfig.h"
 
-typedef sf::Vertex                Vertex2D;
+struct Vertex2D : public sf::Vertex {
+  Vertex2D(sf::Vector2f const &pos, size_t idx = std::numeric_limits<size_t>::max())
+      : sf::Vertex(pos), _index(idx) {}
+
+  size_t _index;
+};
+
 typedef std::array<Vertex2D *, 4> Face2D;
 
 struct Edge2D {
-  Face2D *face1;
-  Face2D *face2;
+  Edge2D(Face2D *newFace) {
+    _faces[0] = newFace;
+    _faces[1] = nullptr;
+  }
+  std::array<Face2D *, 2> _faces;
 };
 
 struct pair_hash {
@@ -24,7 +33,7 @@ struct pair_hash {
 };
 
 class Mesh2D {
-  typedef std::map<std::pair<Vertex2D *, Vertex2D *>, Edge2D *, pair_hash> edgeMap;
+  typedef std::unordered_map<std::pair<size_t, size_t>, Edge2D *, pair_hash> edgeMap;
 
  public:
   Mesh2D();
@@ -41,7 +50,10 @@ class Mesh2D {
   void showMesh();
 
  private:
-  void normalizePoints(std::vector<Vertex2D> &pts);
+  void addEdgesFromFace(Face2D *addedFace);
+  void normalizePoints(std::vector<sf::Vertex> &points,
+                       std::vector<sf::Vertex> &quads,
+                       const double             scaler = 1.1);
 
   edgeMap                 _edges;
   std::vector<Vertex2D *> _vertices;

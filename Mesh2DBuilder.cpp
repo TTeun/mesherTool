@@ -21,7 +21,8 @@ void buildInnerSquare(BaseConfig &baseConfig, Mesh2D &mesh) {
       double absY = std::abs(xIndex) / static_cast<double>(baseConfig.halfInnerBlockCount);
       vertices.push_back(new Vertex2D(
           sf::Vector2f((1.0 - baseConfig.alpha * sq(absX)) * xIndex * baseConfig.innerBlockWidth,
-                       (1.0 - baseConfig.alpha * sq(absY)) * yIndex * baseConfig.innerBlockWidth)));
+                       (1.0 - baseConfig.alpha * sq(absY)) * yIndex * baseConfig.innerBlockWidth),
+          vertices.size()));
     }
   }
 
@@ -89,7 +90,9 @@ void buildQuadrantFaces(  // The horror
                    baseIndexInner + 1,
                    baseIndexInner + (baseConfig.totalSteps),
                    baseIndexInner + (baseConfig.totalSteps) - 1);
+      return;
     }
+
     if (quadrant == 0 || quadrant == 3) {
       size_t baseIndex      = yIndex * indexIncrement + connectingIndex;
       size_t baseIndexInner = yIndex * ((baseConfig.totalSteps) - 1) + indexOffset;
@@ -106,6 +109,7 @@ void buildQuadrantFaces(  // The horror
                    baseIndexInner + (baseConfig.totalSteps) - 1);
     }
   }
+
   if (quadrant < 3) {
     if (quadrant == 0) {
       for (long radialIndex = 0; radialIndex + 2 != static_cast<long>((baseConfig.totalSteps));
