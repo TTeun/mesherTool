@@ -4,9 +4,8 @@
 #include <string>
 #include <unordered_map>
 
-struct Config
-{
-  Config(char const *config_path = "config.cfg");
+struct BaseConfig {
+  BaseConfig(char const *baseConfigPath = "config.cfg");
 
   double innerSquareSide;
   double outerSquareSide;
@@ -34,7 +33,7 @@ struct Config
   template <typename T>
   T readFromMap(std::unordered_map<std::string, std::string> &key_value_map, char const *name);
 
-  void readConfig(char const *config_path);
+  void readBaseConfig(char const *config_path);
 };
 
 #endif //__CONFIG__H

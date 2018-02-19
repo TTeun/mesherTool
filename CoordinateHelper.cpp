@@ -15,12 +15,12 @@ std::pair<double, double> CoordinateHelper::getCoords(const long radialIndex, Re
     std::tie(x, y) = _pipeCoordinates.getCoords(radialIndex);
     break;
   case Exterior:
-    std::tie(x, y) = _pipeCoordinates.getCoords(_config.pipeSteps);
-    double xS, yS;
-    std::tie(xS, yS) = _exteriorCoordinates.getCoords(radialIndex + _config.pipeSteps);
-    std::tie(x, y)   = std::make_pair((1 - _pipeToSquareBlend) * x + _pipeToSquareBlend * xS,
-                                      (1 - _pipeToSquareBlend) * y + _pipeToSquareBlend * yS);
-    _pipeToSquareBlend += 1. / (_config.outerSteps - 1);
+    std::tie(x, y) = _pipeCoordinates.getCoords(_baseConfig.pipeSteps);
+    double xSquare, ySquare;
+    std::tie(xSquare, ySquare) = _exteriorCoordinates.getCoords(radialIndex + _baseConfig.pipeSteps);
+    std::tie(x, y)             = std::make_pair((1 - _pipeToSquareBlend) * x + _pipeToSquareBlend * xSquare,
+                                 (1 - _pipeToSquareBlend) * y + _pipeToSquareBlend * ySquare);
+    _pipeToSquareBlend += 1. / (_baseConfig.outerSteps - 1);
     break;
   }
   return swapCoordsToQuadrant(quadrant, x, y);

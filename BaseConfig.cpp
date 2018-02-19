@@ -1,4 +1,4 @@
-#include "config.h"
+#include "BaseConfig.h"
 #include "io.h"
 #include <cmath>
 #include <iomanip>
@@ -6,40 +6,34 @@
 
 using namespace std;
 
-Config::Config(char const *configPath)
+BaseConfig::BaseConfig(char const *baseConfigPath)
 {
-  readConfig(configPath);
+  readBaseConfig(baseConfigPath);
   innerBlockCount = ceil(innerSquareSide / innerBlockMinWidth);
-  if (innerBlockCount % 2)
-  {
+  if (innerBlockCount % 2) {
     ++innerBlockCount;
   }
-
   innerBlockWidth     = innerSquareSide / innerBlockCount;
   halfInnerBlockCount = innerBlockCount / 2;
   halfSquareSize      = innerSquareSide / 2;
   nozzleSteps         = (nozzleRadius - halfSquareSize) / innerBlockWidth + 1;
-
-  const double dr  = pipeRadius - nozzleRadius;
-  const double phi = M_PI / (2. * static_cast<double>(halfInnerBlockCount));
-  const double num = dr / phi - dr / 2.;
-  const double den = nozzleRadius + dr / 2.;
-  const double k   = num / den;
-
-  pipeSteps       = std::ceil(k);
-  pipeSteps       = 12;
+  const double phi    = M_PI / (4. * static_cast<double>(halfInnerBlockCount));
+  std::cout << pipeRadius / static_cast<double>(nozzleRadius) << '\n';
+  pipeSteps = std::ceil((std::log2(pipeRadius / static_cast<double>(nozzleRadius)) /
+                         std::log2(1 + phi))); // - std::log2(nozzleRadius);
+  std::cout << "pip[e " << pipeSteps << '\n';
+  std::cout << "phi " << phi << '\n';
   outerSteps      = 7;
-  totalSteps      = pipeSteps + nozzleSteps + outerSteps + 1;
+  totalSteps      = 1 + pipeSteps + nozzleSteps; // + outerSteps + 1;
   outerSquareSide = pipeRadius * 1.25;
 }
 
 template <typename T>
-T Config::string_to_T(string const &str)
+T BaseConfig::string_to_T(string const &str)
 {
   T            result;
   stringstream sstream(str);
-  if (not(sstream >> result))
-  {
+  if (not(sstream >> result)) {
     string error("Cannot not convert ");
     error.append(str);
     error.append(" to appropriate value\n");
@@ -49,12 +43,11 @@ T Config::string_to_T(string const &str)
 }
 
 template <typename T>
-T Config::readFromMap(unordered_map<string, string> &keyValueMap, char const *name)
+T BaseConfig::readFromMap(unordered_map<string, string> &keyValueMap, char const *name)
 {
   string stringName(name);
-  if (keyValueMap.find(stringName) == keyValueMap.end())
-  {
-    stringName.append(" could not be found in config file!");
+  if (keyValueMap.find(stringName) == keyValueMap.end()) {
+    stringName.append(" could not be found in base config file!");
     std::cout << stringName << '\n';
   }
   T result = string_to_T<T>(keyValueMap[name]);
@@ -62,31 +55,28 @@ T Config::readFromMap(unordered_map<string, string> &keyValueMap, char const *na
   return result;
 }
 
-void Config::readConfig(char const *configPath)
+void BaseConfig::readBaseConfig(char const *baseConfigPath)
 {
-  ifstream                      conf = IO::open_ifstream(configPath, std::ofstream::in);
+  ifstream                      conf = IO::open_ifstream(baseConfigPath, std::ofstream::in);
   string                        line;
   unordered_map<string, string> keyValueMap;
   string                        key, value;
-  while (getline(conf, line))
-  {
+  while (getline(conf, line)) {
     stringstream lineStream(line);
     lineStream >> key >> value;
-    if (keyValueMap.find(key) != keyValueMap.end())
-    {
+    if (keyValueMap.find(key) != keyValueMap.end()) {
       string error("Double definition of ");
       error.append(key);
-      error.append(" in configuration file");
+      error.append(" in BaseConfiguration file");
       std::cout << error << '\n';
     }
     keyValueMap.insert(make_pair(key, value));
   }
-
   innerSquareSide    = readFromMap<double>(keyValueMap, "innerSquareSide");
   innerBlockMinWidth = readFromMap<double>(keyValueMap, "innerBlockMinWidth");
   nozzleRadius       = readFromMap<double>(keyValueMap, "nozzleRadius");
   pipeRadius         = readFromMap<double>(keyValueMap, "pipeRadius");
   alpha              = readFromMap<double>(keyValueMap, "alpha");
   alphaConnection    = readFromMap<double>(keyValueMap, "alphaConnection");
-  cout << "Config file read succesfully\n\n";
+  cout << "BaseConfig file read succesfully\n\n";
 }

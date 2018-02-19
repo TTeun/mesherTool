@@ -5,7 +5,7 @@ SFMLFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 
 all: tool
 
-tool: Mesh2D.o Mesh2DBuilder.o config.o io.o CoordinateHelper.o main.o
+tool: Mesh2D.o Mesh2DBuilder.o BaseConfig.o io.o CoordinateHelper.o main.o
 	$(CC) *.o $(SFMLFLAGS) $(CFLAGS) -lm $(LFLAGS) -o tool
 
 main.o: main.cpp 
@@ -17,7 +17,7 @@ Mesh2D.o: Mesh2D.cpp Mesh2D.h
 Mesh2DBuilder.o: Mesh2DBuilder.cpp Mesh2DBuilder.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
-config.o: config.cpp config.h
+BaseConfig.o: BaseConfig.cpp BaseConfig.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
 io.o: io.cpp io.h

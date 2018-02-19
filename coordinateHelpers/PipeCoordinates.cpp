@@ -1,5 +1,6 @@
 #include "PipeCoordinates.h"
 #include <cmath>
+#include <iostream>
 
 template <typename T>
 T sq(const T &val)
@@ -7,29 +8,26 @@ T sq(const T &val)
   return val * val;
 }
 
-PipeCoordinates::PipeCoordinates(const Config &config)
-  : _innerRadius(config.nozzleRadius),
-    _outerRadius(config.pipeRadius),
-    _numberOfSteps(config.pipeSteps),
+PipeCoordinates::PipeCoordinates(const BaseConfig &baseConfig)
+  : _innerRadius(baseConfig.nozzleRadius),
+    _outerRadius(baseConfig.pipeRadius),
+    _numberOfSteps(baseConfig.pipeSteps),
     _dr((_outerRadius - _innerRadius) / static_cast<double>(_numberOfSteps)),
-    _config(config)
+    _baseConfig(baseConfig)
 {
-  // const double dr = _outerRadius - _innerRadius;
-  // const double d  = _numberOfSteps * _innerRadius + dr * (_numberOfSteps + 1.) / 2.;
-  // _c              = dr / d;
+  _c = std::pow(_outerRadius / _innerRadius, 1. / _numberOfSteps) - 1;
+  std::cout << _c << '\n';
 }
 
 std::pair<double, double> PipeCoordinates::getCoords(const long radialIndex) const
 {
-  double r = _innerRadius + (radialIndex + 1.) * _dr;
-  // const double dr = _outerRadius - _innerRadius;
-  // _r =  _innerRadius + _c * (radialIndex * (radialIndex - 1.)) * dr /
-  // static_cast<double>(dr); std::cout << _r << '\n';
+  // double r = _innerRadius + (radialIndex + 1.) * _dr;
+  double r = _innerRadius * std::pow(1 + _c, radialIndex + 1);
   return std::make_pair(r * cos(_phi), r * sin(_phi));
 }
 
-void PipeCoordinates::setValues(const long yIndex)
+void PipeCoordinates::yIndexChanged(const long yIndex)
 {
-  _s   = yIndex / static_cast<double>(_config.halfInnerBlockCount);
+  _s   = yIndex / static_cast<double>(_baseConfig.halfInnerBlockCount);
   _phi = M_PI * _s / 4.;
 }

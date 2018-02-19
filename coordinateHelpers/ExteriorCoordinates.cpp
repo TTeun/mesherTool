@@ -13,8 +13,8 @@ std::pair<double, double> ExteriorCoordinates::getCoords(const long radialIndex)
   return std::make_pair(x, std::tan(_phi) * x);
 }
 
-void ExteriorCoordinates::setValues(const long yIndex)
+void ExteriorCoordinates::yIndexChanged(const long yIndex)
 {
-  double s = yIndex / static_cast<double>(_config.halfInnerBlockCount);
+  double s = yIndex / static_cast<double>(_baseConfig.halfInnerBlockCount);
   _phi     = M_PI * s / 4.;
 }

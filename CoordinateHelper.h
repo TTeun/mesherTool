@@ -1,7 +1,7 @@
 #ifndef __COORDINATEHELPER__H
 #define __COORDINATEHELPER__H
 
-#include "config.h"
+#include "BaseConfig.h"
 #include "coordinateHelpers/ExteriorCoordinates.h"
 #include "coordinateHelpers/NozzleCoordinates.h"
 #include "coordinateHelpers/PipeCoordinates.h"
@@ -16,16 +16,19 @@ class CoordinateHelper {
       Exterior
     };
 
-    CoordinateHelper(const Config &config)
-      : _config(config), _nozzleCoordinates(config), _pipeCoordinates(config), _exteriorCoordinates(config)
+    CoordinateHelper(const BaseConfig &baseConfig)
+      : _baseConfig(baseConfig),
+        _nozzleCoordinates(baseConfig),
+        _pipeCoordinates(baseConfig),
+        _exteriorCoordinates(baseConfig)
     {
     }
 
-    void setValues(const long yIndex)
+    void yIndexChanged(const long yIndex)
     {
-      _nozzleCoordinates.setValues(yIndex);
-      _pipeCoordinates.setValues(yIndex);
-      _exteriorCoordinates.setValues(yIndex);
+      _nozzleCoordinates.yIndexChanged(yIndex);
+      _pipeCoordinates.yIndexChanged(yIndex);
+      _exteriorCoordinates.yIndexChanged(yIndex);
       _pipeToSquareBlend = 0;
     }
 
@@ -36,7 +39,7 @@ class CoordinateHelper {
 
     double _pipeToSquareBlend;
 
-    const Config        _config;
+    const BaseConfig    _baseConfig;
     NozzleCoordinates   _nozzleCoordinates;
     PipeCoordinates     _pipeCoordinates;
     ExteriorCoordinates _exteriorCoordinates;
