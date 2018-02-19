@@ -14,7 +14,7 @@ main.o: main.cpp
 Mesh2D.o: Mesh2D.cpp Mesh2D.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
-Mesh2DBuilder.o: Mesh2DBuilder.cpp Mesh2DBuilder.h
+Mesh2DBuilder.o: Mesh2DBuilder.cpp Mesh2DBuilder.h CoordinateHelper.o Mesh2D.o
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
 BaseConfig.o: BaseConfig.cpp BaseConfig.h

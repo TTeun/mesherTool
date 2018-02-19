@@ -1,13 +1,12 @@
 #include "BaseConfig.h"
-#include "io.h"
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include "io.h"
 
 using namespace std;
 
-BaseConfig::BaseConfig(char const *baseConfigPath)
-{
+BaseConfig::BaseConfig(char const *baseConfigPath) {
   readBaseConfig(baseConfigPath);
   innerBlockCount = ceil(innerSquareSide / innerBlockMinWidth);
   if (innerBlockCount % 2) {
@@ -16,17 +15,16 @@ BaseConfig::BaseConfig(char const *baseConfigPath)
   innerBlockWidth     = innerSquareSide / innerBlockCount;
   halfInnerBlockCount = innerBlockCount / 2;
   halfSquareSize      = innerSquareSide / 2;
-  nozzleSteps         = (nozzleRadius - halfSquareSize) / innerBlockWidth + 1;
   const double phi    = M_PI / (4. * static_cast<double>(halfInnerBlockCount));
-  pipeSteps  = std::ceil((std::log2(pipeRadius / static_cast<double>(nozzleRadius)) / std::log2(1 + phi)));
-  outerSteps = 4;
-  totalSteps = pipeSteps + nozzleSteps + outerSteps + 1;
-  outerSquareSide = pipeRadius * 1.25;
+  nozzleSteps         = std::ceil((std::log2(nozzleRadius / halfSquareSize) / std::log2(1 + phi)));
+  pipeSteps           = std::ceil((std::log2(pipeRadius / nozzleRadius) / std::log2(1 + phi)));
+  outerSteps          = 4;
+  totalSteps          = pipeSteps + nozzleSteps + outerSteps + 1;
+  outerSquareSide     = pipeRadius * 1.25;
 }
 
 template <typename T>
-T BaseConfig::string_to_T(string const &str)
-{
+T BaseConfig::string_to_T(string const &str) {
   T            result;
   stringstream sstream(str);
   if (not(sstream >> result)) {
@@ -39,8 +37,7 @@ T BaseConfig::string_to_T(string const &str)
 }
 
 template <typename T>
-T BaseConfig::readFromMap(unordered_map<string, string> &keyValueMap, char const *name)
-{
+T BaseConfig::readFromMap(unordered_map<string, string> &keyValueMap, char const *name) {
   string stringName(name);
   if (keyValueMap.find(stringName) == keyValueMap.end()) {
     stringName.append(" could not be found in base config file!");
@@ -51,8 +48,7 @@ T BaseConfig::readFromMap(unordered_map<string, string> &keyValueMap, char const
   return result;
 }
 
-void BaseConfig::readBaseConfig(char const *baseConfigPath)
-{
+void BaseConfig::readBaseConfig(char const *baseConfigPath) {
   ifstream                      conf = IO::open_ifstream(baseConfigPath, std::ofstream::in);
   string                        line;
   unordered_map<string, string> keyValueMap;

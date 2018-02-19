@@ -21,4 +21,4 @@ struct PipeCoordinates {
   const BaseConfig &_baseConfig;
 };
 
-#endif // __PIPECOORDINATES__H
+#endif  // __PIPECOORDINATES__H

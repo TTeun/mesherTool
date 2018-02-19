@@ -1,18 +1,16 @@
 #include "Mesh2D.h"
-// #include <Color.hpp>
 
 Mesh2D::Mesh2D() {}
 
-void Mesh2D::showMesh()
-{
+void Mesh2D::showMesh() {
   sf::Color               grey(190, 190, 190);
   sf::RenderWindow        window(sf::VideoMode(1000, 1000), "Mesh!");
   std::vector<sf::Vertex> quads;
   for (auto faceIt = _faces.begin(); faceIt != _faces.end(); ++faceIt) {
     for (auto vertIt = (*faceIt)->begin(); vertIt != (*faceIt)->end(); ++vertIt) {
-      quads.push_back(sf::Vertex((**vertIt).position, sf::Color(0.7 * 32, 0.7 * 194, 0.7 * 14)));
+      quads.push_back(sf::Vertex((**vertIt).position, sf::Color::Black));
     }
-    quads.push_back(sf::Vertex((**((*faceIt)->begin())).position, sf::Color(0.7 * 32, 0.7 * 194, 0.7 * 14)));
+    quads.push_back(sf::Vertex((**((*faceIt)->begin())).position, sf::Color::Black));
   }
   std::vector<sf::Vertex> points;
   for (auto vertIt = _vertices.begin(); vertIt != _vertices.end(); ++vertIt) {
@@ -20,6 +18,7 @@ void Mesh2D::showMesh()
   }
   normalizePoints(points);
   normalizePoints(quads);
+
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -36,8 +35,11 @@ void Mesh2D::showMesh()
   }
 }
 
-void Mesh2D::normalizePoints(std::vector<Vertex> &points)
-{
+void Mesh2D::addFace(size_t idx0, size_t idx1, size_t idx2, size_t idx3) {
+  _faces.push_back(new Face2D{_vertices[idx0], _vertices[idx1], _vertices[idx2], _vertices[idx3]});
+}
+
+void Mesh2D::normalizePoints(std::vector<Vertex2D> &points) {
   double xMin = std::numeric_limits<double>::max();
   double xMax = std::numeric_limits<double>::min();
   double yMin = std::numeric_limits<double>::max();

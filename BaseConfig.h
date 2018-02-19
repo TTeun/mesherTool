@@ -36,4 +36,4 @@ struct BaseConfig {
   void readBaseConfig(char const *config_path);
 };
 
-#endif //__CONFIG__H
+#endif  //__CONFIG__H

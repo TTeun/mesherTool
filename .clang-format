@@ -1,4 +1,4 @@
-BasedOnStyle: LLVM
+BasedOnStyle: google
 IndentWidth: 2
 AlignAfterOpenBracket: true
 AlignConsecutiveAssignments: true
@@ -21,3 +21,4 @@ ConstructorInitializerAllOnOneLineOrOnePerLine: true
 BreakBeforeBraces: Allman
 MaxEmptyLinesToKeep: 1
 ColumnLimit: 110
+BreakBeforeBraces: Attach
