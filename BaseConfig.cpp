@@ -18,13 +18,9 @@ BaseConfig::BaseConfig(char const *baseConfigPath)
   halfSquareSize      = innerSquareSide / 2;
   nozzleSteps         = (nozzleRadius - halfSquareSize) / innerBlockWidth + 1;
   const double phi    = M_PI / (4. * static_cast<double>(halfInnerBlockCount));
-  std::cout << pipeRadius / static_cast<double>(nozzleRadius) << '\n';
-  pipeSteps = std::ceil((std::log2(pipeRadius / static_cast<double>(nozzleRadius)) /
-                         std::log2(1 + phi))); // - std::log2(nozzleRadius);
-  std::cout << "pip[e " << pipeSteps << '\n';
-  std::cout << "phi " << phi << '\n';
-  outerSteps      = 7;
-  totalSteps      = 1 + pipeSteps + nozzleSteps; // + outerSteps + 1;
+  pipeSteps  = std::ceil((std::log2(pipeRadius / static_cast<double>(nozzleRadius)) / std::log2(1 + phi)));
+  outerSteps = 4;
+  totalSteps = pipeSteps + nozzleSteps + outerSteps + 1;
   outerSquareSide = pipeRadius * 1.25;
 }
 

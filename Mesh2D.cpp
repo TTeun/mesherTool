@@ -1,20 +1,22 @@
 #include "Mesh2D.h"
+// #include <Color.hpp>
 
 Mesh2D::Mesh2D() {}
 
 void Mesh2D::showMesh()
 {
-  sf::RenderWindow        window(sf::VideoMode(500, 500), "Mesh!");
+  sf::Color               grey(190, 190, 190);
+  sf::RenderWindow        window(sf::VideoMode(1000, 1000), "Mesh!");
   std::vector<sf::Vertex> quads;
   for (auto faceIt = _faces.begin(); faceIt != _faces.end(); ++faceIt) {
     for (auto vertIt = (*faceIt)->begin(); vertIt != (*faceIt)->end(); ++vertIt) {
-      quads.push_back(**vertIt);
+      quads.push_back(sf::Vertex((**vertIt).position, sf::Color(0.7 * 32, 0.7 * 194, 0.7 * 14)));
     }
-    quads.push_back(**(*faceIt)->begin());
+    quads.push_back(sf::Vertex((**((*faceIt)->begin())).position, sf::Color(0.7 * 32, 0.7 * 194, 0.7 * 14)));
   }
   std::vector<sf::Vertex> points;
   for (auto vertIt = _vertices.begin(); vertIt != _vertices.end(); ++vertIt) {
-    points.push_back(**vertIt);
+    points.push_back(sf::Vertex((**vertIt).position, sf::Color::Black));
   }
   normalizePoints(points);
   normalizePoints(quads);
@@ -25,11 +27,11 @@ void Mesh2D::showMesh()
         window.close();
       }
     }
-    window.clear(sf::Color::Black);
-    window.draw(points.data(), points.size(), sf::Points);
+    window.clear(grey);
     for (size_t i = 0; i < quads.size(); i += 5) {
       window.draw(quads.data() + i, 5, sf::LinesStrip);
     }
+    window.draw(points.data(), points.size(), sf::Points);
     window.display();
   }
 }
@@ -52,8 +54,8 @@ void Mesh2D::normalizePoints(std::vector<Vertex> &points)
   yMax *= 1.1;
   for (auto &pt : points) {
     pt.position.x -= xMin;
-    pt.position.x *= 500.f / (xMax - xMin);
+    pt.position.x *= 1000.f / (xMax - xMin);
     pt.position.y -= yMin;
-    pt.position.y *= 500.f / (yMax - yMin);
+    pt.position.y *= 1000.f / (yMax - yMin);
   }
 }
