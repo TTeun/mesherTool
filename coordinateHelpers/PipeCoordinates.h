@@ -1,11 +1,10 @@
-#ifndef __REGION2__H
-#define __REGION2__H
+#ifndef __PIPECOORDINATES__H
+#define __PIPECOORDINATES__H
 
 #include "../config.h"
 
-struct Region2
-{
-  Region2(const Config &config);
+struct PipeCoordinates {
+  PipeCoordinates(const Config &config);
 
   std::pair<double, double> getCoords(const long radialIndex) const;
 
@@ -22,4 +21,4 @@ struct Region2
   const Config &_config;
 };
 
-#endif // __REGION2_H
+#endif // __PIPECOORDINATES__H

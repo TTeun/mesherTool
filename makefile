@@ -8,31 +8,31 @@ all: tool
 tool: Mesh2D.o Mesh2DBuilder.o config.o io.o CoordinateHelper.o main.o
 	$(CC) *.o $(SFMLFLAGS) $(CFLAGS) -lm $(LFLAGS) -o tool
 
-main.o: main.cc 
+main.o: main.cpp 
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
-Mesh2D.o: Mesh2D.cc Mesh2D.h
+Mesh2D.o: Mesh2D.cpp Mesh2D.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
-Mesh2DBuilder.o: Mesh2DBuilder.cc Mesh2DBuilder.h
+Mesh2DBuilder.o: Mesh2DBuilder.cpp Mesh2DBuilder.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
-config.o: config.cc config.h
+config.o: config.cpp config.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
-io.o: io.cc io.h
+io.o: io.cpp io.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
-CoordinateHelper.o: CoordinateHelper.cc CoordinateHelper.h Region1.o Region2.o Region3.o
+CoordinateHelper.o: CoordinateHelper.cpp CoordinateHelper.h NozzleCoordinates.o PipeCoordinates.o ExteriorCoordinates.o
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
-Region1.o: coordinateHelpers/Region1.cc coordinateHelpers/Region1.h
+NozzleCoordinates.o: coordinateHelpers/NozzleCoordinates.cpp coordinateHelpers/NozzleCoordinates.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
-Region2.o: coordinateHelpers/Region2.cc coordinateHelpers/Region2.h
+PipeCoordinates.o: coordinateHelpers/PipeCoordinates.cpp coordinateHelpers/PipeCoordinates.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
-Region3.o: coordinateHelpers/Region3.cc coordinateHelpers/Region3.h
+ExteriorCoordinates.o: coordinateHelpers/ExteriorCoordinates.cpp coordinateHelpers/ExteriorCoordinates.h
 	$(CC) -c $< $(CFLAGS) $(LFLAGS) 
 
 .PHONY: clean
