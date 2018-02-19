@@ -54,7 +54,7 @@ void buildOuterRing(BaseConfig &baseConfig, Mesh2D &mesh) {
       for (size_t regionIdx = 0; regionIdx != 3; ++regionIdx) {
         for (size_t radialIndex = 0; radialIndex != blockCounts[regionIdx]; ++radialIndex) {
           std::tie(x, y) = coordinateHelper.getCoords(radialIndex, regions[regionIdx], quadrant);
-          vertices.push_back(new Vertex2D(sf::Vector2f(x, y)));
+          vertices.push_back(new Vertex2D(sf::Vector2f(x, y), vertices.size()));
         }
       }
     }
@@ -72,7 +72,7 @@ void buildSquareQuadrantVertices(BaseConfig &baseConfig, size_t quadrant, Mesh2D
       for (size_t q = 0; q != quadrant; ++q) {
         std::tie(x, y) = std::make_pair(-y, x);
       }
-      vertices.push_back(new Vertex2D(sf::Vector2f(x, y)));
+      vertices.push_back(new Vertex2D(sf::Vector2f(x, y), vertices.size()));
     }
   }
 }
@@ -90,7 +90,6 @@ void buildQuadrantFaces(  // The horror
                    baseIndexInner + 1,
                    baseIndexInner + (baseConfig.totalSteps),
                    baseIndexInner + (baseConfig.totalSteps) - 1);
-      return;
     }
 
     if (quadrant == 0 || quadrant == 3) {

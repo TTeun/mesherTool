@@ -3,13 +3,13 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 #include "BaseConfig.h"
 
 struct Vertex2D : public sf::Vertex {
-  Vertex2D(sf::Vector2f const &pos, size_t idx = std::numeric_limits<size_t>::max())
-      : sf::Vertex(pos), _index(idx) {}
+  Vertex2D(sf::Vector2f const &pos, size_t idx) : sf::Vertex(pos), _index(idx) {}
 
   size_t _index;
 };
@@ -33,7 +33,7 @@ struct pair_hash {
 };
 
 class Mesh2D {
-  typedef std::unordered_map<std::pair<size_t, size_t>, Edge2D *, pair_hash> edgeMap;
+  typedef std::unordered_map<std::pair<size_t, size_t>, std::unique_ptr<Edge2D>, pair_hash> edgeMap;
 
  public:
   Mesh2D();
@@ -43,9 +43,9 @@ class Mesh2D {
 
   std::vector<Vertex2D *> &getVertices() { return _vertices; }
 
-  std::vector<Vertex2D *> const &getVertices() const { return _vertices; }
-  std::vector<Face2D *> const &  getFaces() const { return _faces; }
-  edgeMap const &                getEdges() const { return _edges; }
+  std::vector<Vertex2D *> const &             getVertices() const { return _vertices; }
+  std::vector<std::unique_ptr<Face2D>> const &getFaces() const { return _faces; }
+  edgeMap const &                             getEdges() const { return _edges; }
 
   void showMesh();
 
@@ -55,9 +55,9 @@ class Mesh2D {
                        std::vector<sf::Vertex> &quads,
                        const double             scaler = 1.1);
 
-  edgeMap                 _edges;
-  std::vector<Vertex2D *> _vertices;
-  std::vector<Face2D *>   _faces;
+  edgeMap                              _edges;
+  std::vector<Vertex2D *>              _vertices;
+  std::vector<std::unique_ptr<Face2D>> _faces;
 };
 
 #endif  // __MESH2D_H
