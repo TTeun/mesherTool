@@ -105,20 +105,25 @@ void Mesh2D::showMesh() {
   }
 }
 
-void Mesh2D::addFace(size_t idx0, size_t idx1, size_t idx2, size_t idx3) {
-  _faces.push_back(std::unique_ptr<Face2D>(new Face2D{
-      _vertices[idx0].get(), _vertices[idx1].get(), _vertices[idx2].get(), _vertices[idx3].get()}));
+void Mesh2D::addFace(
+    const size_t idx0, const size_t idx1, const size_t idx2, const size_t idx3, const Face2D::FaceType type) {
+  _faces.push_back(std::unique_ptr<Face2D>(new Face2D(
+      _vertices[idx0].get(), _vertices[idx1].get(), _vertices[idx2].get(), _vertices[idx3].get(), type)));
   addEdgesFromFace(_faces.back().get());
 }
 
 void Mesh2D::addEdgesFromFace(Face2D *addedFace) {
-  for (auto vertIt = addedFace->getVertices().begin(); vertIt + 1 != addedFace->getVertices().end();
-       ++vertIt) {
+  for (auto vertIt = addedFace->getVertices().begin(); vertIt != addedFace->getVertices().end(); ++vertIt) {
     auto sortedIndices = std::make_pair(std::min((*vertIt)->_index, (*(vertIt + 1))->_index),
                                         std::max((*vertIt)->_index, (*(vertIt + 1))->_index));
 
+    if (vertIt + 1 == addedFace->getVertices().end())
+      sortedIndices =
+          std::make_pair(std::min((*vertIt)->_index, (*addedFace->getVertices().begin())->_index),
+                         std::max((*vertIt)->_index, (*addedFace->getVertices().begin())->_index));
+
     if (_edges.find(sortedIndices) != _edges.end()) {
-      assert(_edges[sortedIndices]->_faces[0] != nullptr && _edges[sortedIndices]->_faces[1] == nullptr);
+      // assert(_edges[sortedIndices]->_faces[0] != nullptr && _edges[sortedIndices]->_faces[1] == nullptr);
       _edges[sortedIndices]->_faces[1] = addedFace;
     } else {
       _edges[sortedIndices] = std::unique_ptr<Edge2D>(new Edge2D(addedFace));

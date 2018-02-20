@@ -14,8 +14,12 @@ struct Edge2D;
 
 class Face2D {
  public:
-  Face2D(Vertex2D *vertex0, Vertex2D *vertex1, Vertex2D *vertex2, Vertex2D *vertex3)
-      : _vertices({vertex0, vertex1, vertex2, vertex3}), _edges({nullptr, nullptr, nullptr, nullptr}) {}
+  enum FaceType { Nozzle, Pipe, Outer };
+
+  Face2D(Vertex2D *vertex0, Vertex2D *vertex1, Vertex2D *vertex2, Vertex2D *vertex3, FaceType type)
+      : _vertices({vertex0, vertex1, vertex2, vertex3}),
+        _edges({nullptr, nullptr, nullptr, nullptr}),
+        _type(type) {}
 
   void addEdge(Edge2D *edge);
 
@@ -27,6 +31,7 @@ class Face2D {
  private:
   std::array<Vertex2D *, 4> _vertices;
   std::array<Edge2D *, 4>   _edges;
+  FaceType                  _type;
 };
 
 struct Edge2D {

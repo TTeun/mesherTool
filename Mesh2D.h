@@ -25,7 +25,7 @@ class Mesh2D {
   Mesh2D();
   Mesh2D(Mesh2D &&other) : _vertices(std::move(other._vertices)), _faces(std::move(other._faces)) {}
 
-  void addFace(size_t idx0, size_t idx1, size_t idx2, size_t idx3);
+  void addFace(size_t idx0, size_t idx1, size_t idx2, size_t idx3, Face2D::FaceType type);
   void addVertex(const double x, const double y) {
     _vertices.push_back(std::unique_ptr<Vertex2D>(new Vertex2D(sf::Vector2f(x, y), _vertices.size())));
   }
