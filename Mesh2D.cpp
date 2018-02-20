@@ -88,7 +88,7 @@ void Mesh2D::addEdgesFromFace(Face2D *addedFace) {
                                         std::max((*vertIt)->_index, (*(vertIt + 1))->_index));
 
     if (_edges.find(sortedIndices) != _edges.end()) {
-      assert(_edges[sortedIndices]->_faces[0] != nullptr && _edges[sortedIndices]->_faces[1] == nullptr);
+      // assert(_edges[sortedIndices]->_faces[0] != nullptr && _edges[sortedIndices]->_faces[1] == nullptr);
       _edges[sortedIndices]->_faces[1] = addedFace;
     } else {
       _edges[sortedIndices] = std::unique_ptr<Edge2D>(new Edge2D(addedFace));
