@@ -1,7 +1,6 @@
 #include "Mesh2DBuilder.h"
 #include <climits>
 #include <cmath>
-#include "CoordinateHelper.h"
 
 template <typename T>
 T sq(const T &val) {
@@ -227,6 +226,13 @@ void buildMesh(const BaseConfig &baseConfig, Mesh2D &mesh) {
 
   for (size_t i = 0; i != 3; ++i) {
     addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, Circle());
+    radius *= (blockCount + 2) / static_cast<double>(blockCount);
+  }
+
+  for (size_t i = 0; i != 6; ++i) {
+    addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, sqircle);
+    sqircle._blend -= 1. / 5.;
+
     radius *= (blockCount + 2) / static_cast<double>(blockCount);
   }
 }

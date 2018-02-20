@@ -3,14 +3,21 @@
 
 Mesh2D::Mesh2D() {}
 
-void Mesh2D::normalizePoints(std::vector<sf::Vertex> &points,
-                             std::vector<sf::Vertex> &quads,
-                             const double             scaler) {
+void normalizePoints(std::vector<sf::Vertex> &points,
+                     std::vector<sf::Vertex> &quads,
+                     std::vector<sf::Vertex> &centers,
+                     const double             scaler = 1.1f) {
   double xMin = std::numeric_limits<double>::max();
   double xMax = std::numeric_limits<double>::min();
   double yMin = std::numeric_limits<double>::max();
   double yMax = std::numeric_limits<double>::min();
   for (auto ptIt = points.begin(); ptIt != points.end(); ++ptIt) {
+    xMin = std::min(xMin, static_cast<double>((*ptIt).position.x));
+    xMax = std::max(xMax, static_cast<double>((*ptIt).position.x));
+    yMin = std::min(yMin, static_cast<double>((*ptIt).position.y));
+    yMax = std::max(yMax, static_cast<double>((*ptIt).position.y));
+  }
+  for (auto ptIt = centers.begin(); ptIt != centers.end(); ++ptIt) {
     xMin = std::min(xMin, static_cast<double>((*ptIt).position.x));
     xMax = std::max(xMax, static_cast<double>((*ptIt).position.x));
     yMin = std::min(yMin, static_cast<double>((*ptIt).position.y));
@@ -38,6 +45,12 @@ void Mesh2D::normalizePoints(std::vector<sf::Vertex> &points,
     pt.position.y -= yMin;
     pt.position.y *= 750.f / (yMax - yMin);
   }
+  for (auto &pt : centers) {
+    pt.position.x -= xMin;
+    pt.position.x *= 750.f / (xMax - xMin);
+    pt.position.y -= yMin;
+    pt.position.y *= 750.f / (yMax - yMin);
+  }
 }
 
 void Mesh2D::showMesh() {
@@ -57,8 +70,22 @@ void Mesh2D::showMesh() {
   for (auto vertIt = getVertices().begin(); vertIt != getVertices().end(); ++vertIt) {
     points.push_back(sf::Vertex((**vertIt).position, sf::Color::Black));
   }
-  normalizePoints(points, quads);
+  std::vector<sf::Vertex> centersConnections;
+  sf::Vector2f            c;
 
+  for (auto edgeIt = _edges.begin(); edgeIt != _edges.end(); ++edgeIt) {
+    c = .5f * (_vertices[edgeIt->first.first]->position + _vertices[edgeIt->first.second]->position);
+    sf::Vector2f f1 = 0.6f * edgeIt->second->_faces[0]->getCenter() + 0.4f * c;
+
+    centersConnections.push_back(sf::Vertex(f1, sf::Color::Magenta));
+    centersConnections.push_back(sf::Vertex(c, sf::Color::Magenta));
+    if (edgeIt->second->_faces[1] != nullptr) {
+      f1 = 0.6f * edgeIt->second->_faces[1]->getCenter() + 0.4f * c;
+    }
+    centersConnections.push_back(sf::Vertex(f1, sf::Color::Magenta));
+  }
+
+  normalizePoints(points, quads, centersConnections);
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -69,6 +96,9 @@ void Mesh2D::showMesh() {
     window.clear(grey);
     for (size_t i = 0; i < quads.size(); i += 5) {
       window.draw(quads.data() + i, 5, sf::LinesStrip);
+    }
+    for (size_t i = 0; i < centersConnections.size(); i += 3) {
+      window.draw(centersConnections.data() + i, 3, sf::LinesStrip);
     }
     window.draw(points.data(), points.size(), sf::Points);
     window.display();
@@ -88,7 +118,7 @@ void Mesh2D::addEdgesFromFace(Face2D *addedFace) {
                                         std::max((*vertIt)->_index, (*(vertIt + 1))->_index));
 
     if (_edges.find(sortedIndices) != _edges.end()) {
-      // assert(_edges[sortedIndices]->_faces[0] != nullptr && _edges[sortedIndices]->_faces[1] == nullptr);
+      assert(_edges[sortedIndices]->_faces[0] != nullptr && _edges[sortedIndices]->_faces[1] == nullptr);
       _edges[sortedIndices]->_faces[1] = addedFace;
     } else {
       _edges[sortedIndices] = std::unique_ptr<Edge2D>(new Edge2D(addedFace));
