@@ -30,6 +30,11 @@ class Mesh2D {
     _vertices.push_back(std::unique_ptr<Vertex2D>(new Vertex2D(sf::Vector2f(x, y), _vertices.size())));
   }
 
+  void addVertex(const std::pair<double, double> &coords) {
+    _vertices.push_back(
+        std::unique_ptr<Vertex2D>(new Vertex2D(sf::Vector2f(coords.first, coords.second), _vertices.size())));
+  }
+
   std::vector<std::unique_ptr<Vertex2D>> const &getVertices() const { return _vertices; }
   std::vector<std::unique_ptr<Face2D>> const &  getFaces() const { return _faces; }
   edgeMap const &                               getEdges() const { return _edges; }

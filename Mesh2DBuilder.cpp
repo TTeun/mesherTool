@@ -78,7 +78,7 @@ struct Circle {
 
 template <typename C1, typename C2>
 struct Sqircle {
-  Sqircle(double blend = 0) : _blend(blend) {}
+  Sqircle(double blend = 0.) : _blend(blend) {}
 
   doublePair getCoords(const size_t index, const size_t numBlocks, const double radius) const {
     return _blend * C1::getCoords(index, numBlocks, radius) +
@@ -96,15 +96,12 @@ void addSkipRing(Mesh2D &                mesh,
                  const size_t            newBlockCount,
                  const Face2D::FaceType  type,
                  const C &               coordinates) {
-  double                 x;
-  double                 y;
   std::array<size_t, 4U> newVertexIndices;
 
   for (size_t quadrant = 0; quadrant != 4; ++quadrant) {
     newVertexIndices[quadrant] = mesh.getVertices().size();
     for (size_t i = 0; i != newBlockCount; ++i) {
-      std::tie(x, y) = swapCoordsToQuadrant(quadrant, coordinates.getCoords(i, newBlockCount, radius));
-      mesh.addVertex(x, y);
+      mesh.addVertex(swapCoordsToQuadrant(quadrant, coordinates.getCoords(i, newBlockCount, radius)));
     }
   }
   for (size_t quadrant = 0; quadrant != 4; ++quadrant) {
@@ -136,15 +133,11 @@ void addRing(Mesh2D &                mesh,
              size_t &                newBlockCount,
              const Face2D::FaceType  type,
              const C &               coordinates) {
-  double x;
-  double y;
-
   std::array<size_t, 4U> newVertexIndices;
   for (size_t quadrant = 0; quadrant != 4; ++quadrant) {
     newVertexIndices[quadrant] = mesh.getVertices().size();
     for (size_t i = 0; i <= newBlockCount + 1; ++i) {
-      std::tie(x, y) = swapCoordsToQuadrant(quadrant, coordinates.getCoords(i, newBlockCount + 2, radius));
-      mesh.addVertex(x, y);
+      mesh.addVertex(swapCoordsToQuadrant(quadrant, coordinates.getCoords(i, newBlockCount + 2, radius)));
     }
   }
   for (size_t quadrant = 0; quadrant != 4; ++quadrant) {
@@ -195,51 +188,68 @@ void buildMesh(const BaseConfig &baseConfig, Mesh2D &mesh) {
   size_t blockCount = baseConfig.innerBlockCount;
   double radius     = (blockCount + 2.) * baseConfig.innerBlockWidth / 2.;
 
-  const size_t squareToNozzleSteps = 2;
-  const size_t nozzleToSquareSteps = 3;
-  const size_t squareToPipeSteps   = 3;
-  const size_t pipeToSquareSteps   = 3;
-
+  const size_t squareToNozzleSteps   = 3;
+  const size_t nozzleToSquareSteps   = 4;
+  const size_t regularRectangleSteps = 2;
+  const size_t regularBendSteps      = 2;
+  const size_t squareToPipeSteps     = 3;
+  const size_t pipeToSquareSteps     = 5;
+  double       c = std::pow(baseConfig.nozzleRadius / static_cast<double>(baseConfig.innerSquareSide),
+                      1. / (squareToNozzleSteps + 1));
   // Initial ring
   for (size_t i = 0; i != squareToNozzleSteps; ++i) {
     addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, Face2D::FaceType::Nozzle, Circle());
-    radius *= (blockCount + 2) / static_cast<double>(blockCount);
+    radius *= c;
   }
 
   // Transition to regular rectangular
   Sqircle<Circle, Square> sqircle(1.);
   for (size_t i = 0; i != nozzleToSquareSteps; ++i) {
-    sqircle._blend -= 1. / nozzleToSquareSteps;
+    sqircle._blend -= 0.6 / (nozzleToSquareSteps);
     addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, Face2D::FaceType::Pipe, sqircle);
-    radius *= (blockCount + 2) / static_cast<double>(blockCount);
+    radius *= 1.15;
   }
 
   // Regular Rectangular
-  sqircle._blend = 0;
-  for (size_t i = 0; i != squareToPipeSteps; ++i) {
+  sqircle._blend = 0.15;
+  for (size_t i = 0; i != regularRectangleSteps; ++i) {
     addRing(mesh, radius, startIndices, indexIncrements, blockCount, Face2D::FaceType::Pipe, sqircle);
-    sqircle._blend += 0.7 * 1. / squareToPipeSteps;
+    // sqircle._blend += 0.7 * 1. / squareToPipeSteps;
 
     radius *= (blockCount + 2) / static_cast<double>(blockCount);
   }
 
-  const double dBlend = (1. - sqircle._blend) / pipeToSquareSteps;
+  sqircle._blend = 0.15;
+  for (size_t i = 0; i != regularBendSteps; ++i) {
+    addRing(mesh, radius, startIndices, indexIncrements, blockCount, Face2D::FaceType::Pipe, sqircle);
+    sqircle._blend += .85 / (regularBendSteps + squareToPipeSteps);
 
-  for (size_t i = 0; i != pipeToSquareSteps; ++i) {
+    radius *= (blockCount + 2) / static_cast<double>(blockCount);
+  }
+
+  const double dBlend = (1. - sqircle._blend) / (squareToPipeSteps);
+
+  for (size_t i = 0; i != squareToPipeSteps; ++i) {
     addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, Face2D::FaceType::Pipe, sqircle);
     sqircle._blend += dBlend;
 
     radius *= (blockCount + 2) / static_cast<double>(blockCount);
   }
+  sqircle._blend = 1.;
+  for (size_t i = 0; i != 3; ++i) {
+    addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, Face2D::FaceType::Pipe, sqircle);
 
-  for (size_t i = 0; i != 1; ++i) {
-    addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, Face2D::FaceType::Pipe, Circle());
+    radius *= (blockCount + 1) / static_cast<double>(blockCount);
+  }
+  for (size_t i = 0; i != 3; ++i) {
+    sqircle._blend -= 1. / pipeToSquareSteps;
+    addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, Face2D::FaceType::Outer, sqircle);
+
     radius *= (blockCount + 2) / static_cast<double>(blockCount);
   }
-
-  for (size_t i = 0; i != 1; ++i) {
-    addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, Face2D::FaceType::Outer, sqircle);
-    sqircle._blend -= 1. / 5.;
+  for (size_t i = 3; i < pipeToSquareSteps; ++i) {
+    sqircle._blend -= 1. / pipeToSquareSteps;
+    addRing(mesh, radius, startIndices, indexIncrements, blockCount, Face2D::FaceType::Outer, sqircle);
 
     radius *= (blockCount + 2) / static_cast<double>(blockCount);
   }
