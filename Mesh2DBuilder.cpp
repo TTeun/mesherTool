@@ -33,134 +33,6 @@ void buildInnerSquare(const BaseConfig &baseConfig, Mesh2D &mesh) {
   }
 }
 
-// void buildOuterRing(const BaseConfig &baseConfig, Mesh2D &mesh) {
-//   CoordinateHelper coordinateHelper(baseConfig);
-
-//   const CoordinateHelper::Region regions[3] = {
-//       CoordinateHelper::Nozzle, CoordinateHelper::Pipe, CoordinateHelper::Exterior};
-//   const size_t blockCounts[3] = {baseConfig.nozzleSteps, baseConfig.pipeSteps, baseConfig.outerSteps};
-
-//   double x;
-//   double y;
-//   for (size_t quadrant = 0; quadrant != 4; ++quadrant) {
-//     for (long yIndex = -static_cast<long>(baseConfig.halfInnerBlockCount);
-//          yIndex != static_cast<long>(baseConfig.halfInnerBlockCount);
-//          ++yIndex) {
-//       coordinateHelper.yIndexChanged(yIndex);
-//       for (size_t regionIdx = 0; regionIdx != 3; ++regionIdx) {
-//         for (size_t radialIndex = 0; radialIndex != blockCounts[regionIdx]; ++radialIndex) {
-//           std::tie(x, y) = coordinateHelper.getCoords(radialIndex, regions[regionIdx], quadrant);
-//           mesh.addVertex(x, y);
-//         }
-//       }
-//     }
-//   }
-// }
-
-// void buildSquareQuadrantVertices(const BaseConfig &baseConfig, size_t quadrant, Mesh2D &mesh) {
-//   for (long yIndex = -static_cast<long>(baseConfig.halfInnerBlockCount);
-//        yIndex != static_cast<long>(baseConfig.halfInnerBlockCount);
-//        ++yIndex) {
-//     for (long xIndex = 1; xIndex != static_cast<long>(baseConfig.totalSteps); ++xIndex) {
-//       double y = yIndex;
-//       double x = 0.5 * baseConfig.innerSquareSide + xIndex * baseConfig.innerBlockWidth;
-//       for (size_t q = 0; q != quadrant; ++q) {
-//         std::tie(x, y) = std::make_pair(-y, x);
-//       }
-//       mesh.addVertex(x, y);
-//     }
-//   }
-// }
-
-// void buildQuadrantFaces(  // The horror
-//     const BaseConfig &baseConfig,
-//     size_t            indexOffset,
-//     long              indexIncrement,
-//     size_t            connectingIndex,
-//     size_t            quadrant,
-//     Mesh2D &          mesh) {
-//   for (long yIndex = 0; yIndex != static_cast<long>(baseConfig.innerBlockCount) - 1; ++yIndex) {
-//     for (long radialIndex = 0; radialIndex + 2 != static_cast<long>((baseConfig.totalSteps));
-//     ++radialIndex) {
-//       size_t baseIndexInner = yIndex * ((baseConfig.totalSteps) - 1) + radialIndex + indexOffset;
-//       mesh.addFace(baseIndexInner,
-//                    baseIndexInner + 1,
-//                    baseIndexInner + (baseConfig.totalSteps),
-//                    baseIndexInner + (baseConfig.totalSteps) - 1);
-//     }
-
-//     if (quadrant == 0 || quadrant == 3) {
-//       size_t baseIndex      = yIndex * indexIncrement + connectingIndex;
-//       size_t baseIndexInner = yIndex * ((baseConfig.totalSteps) - 1) + indexOffset;
-//       mesh.addFace(baseIndex,
-//                    baseIndexInner,
-//                    baseIndexInner + (baseConfig.totalSteps) - 1,
-//                    baseIndex + indexIncrement);
-//     } else if (quadrant == 1 || quadrant == 2) {
-//       size_t baseIndex      = connectingIndex - yIndex * indexIncrement;
-//       size_t baseIndexInner = yIndex * ((baseConfig.totalSteps) - 1) + indexOffset;
-//       mesh.addFace(baseIndexInner,
-//                    baseIndex + indexIncrement,
-//                    baseIndex,
-//                    baseIndexInner + (baseConfig.totalSteps) - 1);
-//     }
-//   }
-
-//   if (quadrant < 3) {
-//     if (quadrant == 0) {
-//       for (long radialIndex = 0; radialIndex + 2 != static_cast<long>((baseConfig.totalSteps));
-//            ++radialIndex) {
-//         size_t baseIndexInner = radialIndex + indexOffset;
-//         mesh.addFace(baseIndexInner,
-//                      baseIndexInner + 1,
-//                      baseIndexInner + (baseConfig.innerBlockCount - 1) * ((baseConfig.totalSteps) - 1) +
-//                          3 * (baseConfig.innerBlockCount) * ((baseConfig.totalSteps) - 1) + 1,
-//                      baseIndexInner + (baseConfig.innerBlockCount - 1) * ((baseConfig.totalSteps) - 1) +
-//                          3 * (baseConfig.innerBlockCount) * ((baseConfig.totalSteps) - 1));
-//       }
-//     }
-//     for (long radialIndex = 0; radialIndex + 2 != static_cast<long>((baseConfig.totalSteps));
-//     ++radialIndex) {
-//       long   yIndex         = static_cast<long>(baseConfig.innerBlockCount) - 1;
-//       size_t baseIndexInner = yIndex * ((baseConfig.totalSteps) - 1) + radialIndex + indexOffset;
-//       mesh.addFace(baseIndexInner,
-//                    baseIndexInner + 1,
-//                    baseIndexInner + (baseConfig.totalSteps),
-//                    baseIndexInner + (baseConfig.totalSteps) - 1);
-//     }
-//   }
-// }
-
-// void connectVertices(const BaseConfig &baseConfig, Mesh2D &mesh) {
-//   auto indexIncrements =
-//       std::vector<size_t>{baseConfig.innerBlockCount + 1, 1, baseConfig.innerBlockCount + 1, 1};
-//   auto connectingIndices =
-//       std::vector<size_t>{baseConfig.innerBlockCount,
-//                           baseConfig.innerBlockCount * (baseConfig.innerBlockCount + 2) - 1,
-//                           (baseConfig.innerBlockCount - 1) * (baseConfig.innerBlockCount + 1),
-//                           0};
-//   size_t indexOffset = (baseConfig.innerBlockCount + 1) * (baseConfig.innerBlockCount + 1);
-//   for (size_t quadrant = 0; quadrant != 4; ++quadrant) {
-//     buildQuadrantFaces(
-//         baseConfig, indexOffset, indexIncrements[quadrant], connectingIndices[quadrant], quadrant, mesh);
-//     indexOffset += baseConfig.innerBlockCount * (baseConfig.totalSteps - 1);
-//   }
-// }
-
-// doublePair swapCoordsToQuadrant(size_t quadrant, double x, double y) {
-//   switch (quadrant) {
-//     case 0:
-//       return std::make_pair(x, y);
-//     case 1:
-//       return std::make_pair(-y, x);
-//     case 2:
-//       return std::make_pair(-x, -y);
-//     case 3:
-//       return std::make_pair(y, -x);
-//   }
-//   return std::make_pair(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
-// }
-
 typedef std::pair<double, double> doublePair;
 
 doublePair operator*(const double m, doublePair const &c) {
@@ -316,31 +188,39 @@ void buildMesh(const BaseConfig &baseConfig, Mesh2D &mesh) {
   size_t blockCount = baseConfig.innerBlockCount;
   double radius     = (blockCount + 2.) * baseConfig.innerBlockWidth / 2.;
 
+  const size_t squareToNozzleSteps = 3;
+  const size_t nozzleToSquareSteps = 5;
+  const size_t squareToPipeSteps   = 8;
+  const size_t pipeToSquareSteps   = 4;
+
   // Initial ring
-  for (size_t i = 0; i != 3; ++i) {
+  for (size_t i = 0; i != squareToNozzleSteps; ++i) {
     addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, Circle());
     radius *= (blockCount + 2) / static_cast<double>(blockCount);
   }
 
   // Transition to regular rectangular
   Sqircle<Circle, Square> sqircle(1.);
-  for (size_t i = 0; i != 5; ++i) {
+  for (size_t i = 0; i != nozzleToSquareSteps; ++i) {
     addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, sqircle);
-    sqircle._blend -= 0.2;
+    sqircle._blend -= 1. / nozzleToSquareSteps;
     radius *= (blockCount + 2) / static_cast<double>(blockCount);
   }
-  sqircle._blend = 0;
+
   // Regular Rectangular
-  for (size_t i = 0; i != 5; ++i) {
+  sqircle._blend = 0;
+  for (size_t i = 0; i != squareToPipeSteps; ++i) {
     addRing(mesh, radius, startIndices, indexIncrements, blockCount, sqircle);
-    sqircle._blend += 0.1;
+    sqircle._blend += 0.7 * 1. / squareToPipeSteps;
 
     radius *= (blockCount + 2) / static_cast<double>(blockCount);
   }
 
-  for (size_t i = 0; i != 5; ++i) {
+  const double dBlend = (1. - sqircle._blend) / pipeToSquareSteps;
+
+  for (size_t i = 0; i != pipeToSquareSteps; ++i) {
     addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, sqircle);
-    sqircle._blend += 0.1;
+    sqircle._blend += dBlend;
 
     radius *= (blockCount + 2) / static_cast<double>(blockCount);
   }
@@ -349,9 +229,6 @@ void buildMesh(const BaseConfig &baseConfig, Mesh2D &mesh) {
     addSkipRing(mesh, radius, startIndices, indexIncrements, blockCount, Circle());
     radius *= (blockCount + 2) / static_cast<double>(blockCount);
   }
-  // buildOuterRing(baseConfig, mesh);
-
-  // connectVertices(baseConfig, mesh);
 }
 
 Mesh2D Mesh2DBuilder::buildAirBearingMesh2D() {

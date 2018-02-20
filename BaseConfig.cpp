@@ -21,7 +21,7 @@ BaseConfig::BaseConfig(char const *baseConfigPath) {
   outerSteps          = 4;
   totalSteps          = pipeSteps + nozzleSteps + outerSteps + 1;
   outerSquareSide     = pipeRadius * 1.25;
-  alpha               = 0.292893218813;  // = 1 - sin(pi / 4)
+  alpha               = 0.23;  // = 1 - sin(pi / 4)
   alphaConnection     = 0.;
 }
 
