@@ -23,7 +23,9 @@ class Face2D {
 
   void addEdge(Edge2D *edge);
 
-  sf::Vector2f getCenter();
+  sf::Vector2f getCenter() const;
+
+  FaceType getType() const { return _type; }
 
   std::array<Vertex2D *, 4> const &getVertices() const { return _vertices; }
   std::array<Edge2D *, 4> const &  getEdges() const { return _edges; }

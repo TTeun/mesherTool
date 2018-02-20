@@ -35,27 +35,27 @@ void normalizePoints(std::vector<sf::Vertex> &points,
   yMax *= scaler;
   for (auto &pt : points) {
     pt.position.x -= xMin;
-    pt.position.x *= 750.f / (xMax - xMin);
+    pt.position.x *= 1100.f / (xMax - xMin);
     pt.position.y -= yMin;
-    pt.position.y *= 750.f / (yMax - yMin);
+    pt.position.y *= 1100.f / (yMax - yMin);
   }
   for (auto &pt : quads) {
     pt.position.x -= xMin;
-    pt.position.x *= 750.f / (xMax - xMin);
+    pt.position.x *= 1100.f / (xMax - xMin);
     pt.position.y -= yMin;
-    pt.position.y *= 750.f / (yMax - yMin);
+    pt.position.y *= 1100.f / (yMax - yMin);
   }
   for (auto &pt : centers) {
     pt.position.x -= xMin;
-    pt.position.x *= 750.f / (xMax - xMin);
+    pt.position.x *= 1100.f / (xMax - xMin);
     pt.position.y -= yMin;
-    pt.position.y *= 750.f / (yMax - yMin);
+    pt.position.y *= 1100.f / (yMax - yMin);
   }
 }
 
 void Mesh2D::showMesh() {
   sf::Color        grey(190, 190, 190);
-  sf::RenderWindow window(sf::VideoMode(750, 750), "Mesh!");
+  sf::RenderWindow window(sf::VideoMode(1100, 1100), "Mesh!");
 
   std::vector<sf::Vertex> quads;
   for (auto faceIt = _faces.begin(); faceIt != _faces.end(); ++faceIt) {
@@ -86,6 +86,25 @@ void Mesh2D::showMesh() {
   }
 
   normalizePoints(points, quads, centersConnections);
+
+  std::vector<sf::ConvexShape> polygons(quads.size() / 5);
+
+  for (size_t i = 0; i != polygons.size(); ++i) {
+    polygons[i].setPointCount(4);
+    polygons[i].setPoint(0, quads[5 * i].position);
+    polygons[i].setPoint(1, quads[5 * i + 1].position);
+    polygons[i].setPoint(2, quads[5 * i + 2].position);
+    polygons[i].setPoint(3, quads[5 * i + 3].position);
+    polygons[i].setPoint(4, quads[5 * i + 4].position);
+
+    polygons[i].setOutlineColor(sf::Color::Black);
+    polygons[i].setOutlineThickness(1);
+    auto color = _faces[i]->getType() == Face2D::FaceType::Nozzle
+                     ? sf::Color::Red
+                     : _faces[i]->getType() == Face2D::FaceType::Pipe ? sf::Color::Green : sf::Color::Yellow;
+    polygons[i].setFillColor(color);
+  }
+
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -94,12 +113,12 @@ void Mesh2D::showMesh() {
       }
     }
     window.clear(grey);
-    for (size_t i = 0; i < quads.size(); i += 5) {
-      window.draw(quads.data() + i, 5, sf::LinesStrip);
+    for (size_t i = 0; i != polygons.size(); ++i) {
+      window.draw(polygons[i]);
     }
-    for (size_t i = 0; i < centersConnections.size(); i += 3) {
-      window.draw(centersConnections.data() + i, 3, sf::LinesStrip);
-    }
+    // for (size_t i = 0; i < centersConnections.size(); i += 3) {
+    //   window.draw(centersConnections.data() + i, 3, sf::LinesStrip);
+    // }
     window.draw(points.data(), points.size(), sf::Points);
     window.display();
   }

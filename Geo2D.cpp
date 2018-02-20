@@ -8,7 +8,7 @@ void Face2D::addEdge(Edge2D *edge) {
   *edgeIt = edge;
 }
 
-sf::Vector2f Face2D::getCenter() {
+sf::Vector2f Face2D::getCenter() const {
   sf::Vector2f result(0., 0.);
   for (auto vertIt = _vertices.begin(); vertIt != _vertices.end(); ++vertIt) {
     result += (*vertIt)->position;
