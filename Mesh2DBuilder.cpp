@@ -1,6 +1,7 @@
 #include "Mesh2DBuilder.h"
 #include <climits>
 #include <cmath>
+#include "BaseConfig.h"
 
 template <typename T>
 T sq(const T &val) {
@@ -8,26 +9,24 @@ T sq(const T &val) {
 }
 
 void buildInnerSquare(const BaseConfig &baseConfig, Mesh2D &mesh) {
-  for (long yIndex = -static_cast<long>(baseConfig.halfInnerBlockCount);
-       yIndex != static_cast<long>(baseConfig.halfInnerBlockCount) + 1;
-       ++yIndex) {
-    double absX = std::abs(yIndex) / static_cast<double>(baseConfig.halfInnerBlockCount);
-    for (long xIndex = -static_cast<long>(baseConfig.halfInnerBlockCount);
-         xIndex != static_cast<long>(baseConfig.halfInnerBlockCount) + 1;
-         ++xIndex) {
-      double absY = std::abs(xIndex) / static_cast<double>(baseConfig.halfInnerBlockCount);
-      mesh.addVertex((1.0 - baseConfig.alpha * sq(absX)) * xIndex * baseConfig.innerBlockWidth,
-                     (1.0 - baseConfig.alpha * sq(absY)) * yIndex * baseConfig.innerBlockWidth);
+  const long halfInnerBlockCount = baseConfig._innerBlockCount / 2;
+  for (long yIndex = -halfInnerBlockCount; yIndex != halfInnerBlockCount + 1; ++yIndex) {
+    double absX = std::abs(yIndex) / halfInnerBlockCount;
+    for (long xIndex = -halfInnerBlockCount; xIndex != halfInnerBlockCount + 1; ++xIndex) {
+      double absY = std::abs(xIndex) / halfInnerBlockCount;
+      mesh.addVertex((1.0 - baseConfig._alpha * sq(absX)) * xIndex * baseConfig._innerBlockWidth,
+                     (1.0 - baseConfig._alpha * sq(absY)) * yIndex * baseConfig._innerBlockWidth);
     }
   }
+  const size_t innerBlockCount = baseConfig._innerBlockCount;
 
-  for (size_t yIndex = 0; yIndex != baseConfig.innerBlockCount; ++yIndex) {
-    for (size_t xIndex = 0; xIndex != baseConfig.innerBlockCount; ++xIndex) {
-      size_t baseIndex = xIndex * (baseConfig.innerBlockCount + 1) + yIndex;
+  for (size_t yIndex = 0; yIndex != innerBlockCount; ++yIndex) {
+    for (size_t xIndex = 0; xIndex != innerBlockCount; ++xIndex) {
+      size_t baseIndex = xIndex * (innerBlockCount + 1) + yIndex;
       mesh.addFace(baseIndex,
                    baseIndex + 1,
-                   baseIndex + baseConfig.innerBlockCount + 2,
-                   baseIndex + baseConfig.innerBlockCount + 1,
+                   baseIndex + innerBlockCount + 2,
+                   baseIndex + innerBlockCount + 1,
                    Face2D::FaceType::Nozzle);
     }
   }
@@ -64,7 +63,7 @@ doublePair swapCoordsToQuadrant(size_t quadrant, const doublePair &coords) {
 }
 
 struct Square {
-  static doublePair getCoords(const size_t index, const size_t numBlocks, const double radius) {
+  constexpr static doublePair getCoords(const size_t index, const size_t numBlocks, const double radius) {
     return std::make_pair(radius * 2. * (index - numBlocks / 2.) / static_cast<double>(numBlocks), -radius);
   }
 };
@@ -174,19 +173,20 @@ void addRing(Mesh2D &                mesh,
 
 void buildMesh(const BaseConfig &baseConfig, Mesh2D &mesh) {
   buildInnerSquare(baseConfig, mesh);
+
   std::array<size_t, 4U> startIndices = {
       0U,
-      baseConfig.innerBlockCount,
-      (1U + baseConfig.innerBlockCount) * (1U + baseConfig.innerBlockCount) - 1U,
-      (baseConfig.innerBlockCount) * (1U + baseConfig.innerBlockCount)};
+      baseConfig._innerBlockCount,
+      (1U + baseConfig._innerBlockCount) * (1U + baseConfig._innerBlockCount) - 1U,
+      (baseConfig._innerBlockCount) * (1U + baseConfig._innerBlockCount)};
 
   std::array<long, 4U> indexIncrements = {1L,
-                                          static_cast<long>(baseConfig.innerBlockCount) + 1L,
+                                          static_cast<long>(baseConfig._innerBlockCount) + 1L,
                                           -1L,
-                                          -static_cast<long>(baseConfig.innerBlockCount) - 1L};
+                                          -static_cast<long>(baseConfig._innerBlockCount) - 1L};
 
-  size_t blockCount = baseConfig.innerBlockCount;
-  double radius     = (blockCount + 2.) * baseConfig.innerBlockWidth / 2.;
+  size_t blockCount = baseConfig._innerBlockCount;
+  double radius     = (blockCount + 2.) * baseConfig._innerBlockWidth / 2.;
 
   const size_t squareToNozzleSteps   = 3;
   const size_t nozzleToSquareSteps   = 4;
@@ -194,7 +194,7 @@ void buildMesh(const BaseConfig &baseConfig, Mesh2D &mesh) {
   const size_t regularBendSteps      = 2;
   const size_t squareToPipeSteps     = 3;
   const size_t pipeToSquareSteps     = 5;
-  double       c = std::pow(baseConfig.nozzleRadius / static_cast<double>(baseConfig.innerSquareSide),
+  double       c = std::pow(baseConfig._nozzleRadius / static_cast<double>(baseConfig._innerSquareWidth),
                       1. / (squareToNozzleSteps + 1));
   // Initial ring
   for (size_t i = 0; i != squareToNozzleSteps; ++i) {

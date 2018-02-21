@@ -6,7 +6,6 @@
 
 struct Vertex2D : public sf::Vertex {
   Vertex2D(sf::Vector2f const &pos, size_t idx) : sf::Vertex(pos), _index(idx) {}
-
   size_t _index;
 };
 

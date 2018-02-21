@@ -8,25 +8,22 @@ using namespace std;
 
 BaseConfig::BaseConfig(char const *baseConfigPath) {
   readBaseConfig(baseConfigPath);
-  innerBlockCount = ceil(innerSquareSide / innerBlockMinWidth);
-  if (innerBlockCount % 2) {
-    ++innerBlockCount;
+  _innerBlockCount = ceil(_innerSquareWidth / _innerBlockMinWidth);
+  if (_innerBlockCount % 2) {
+    ++_innerBlockCount;
   }
-  innerBlockWidth     = innerSquareSide / innerBlockCount;
-  halfInnerBlockCount = innerBlockCount / 2;
-  halfSquareSize      = innerSquareSide / 2;
-  const double phi    = M_PI / (4. * static_cast<double>(halfInnerBlockCount));
-  nozzleSteps         = std::ceil((std::log2(nozzleRadius / halfSquareSize) / std::log2(1 + phi)));
-  pipeSteps           = std::ceil((std::log2(pipeRadius / nozzleRadius) / std::log2(1 + phi)));
-  outerSteps          = 4;
-  totalSteps          = pipeSteps + nozzleSteps + outerSteps + 1;
-  outerSquareSide     = pipeRadius * 1.25;
-  alpha               = 0.23;  // = 1 - sin(pi / 4)
-  alphaConnection     = 0.;
+  _innerBlockWidth  = _innerSquareWidth / _innerBlockCount;
+  const double phi  = M_PI / (2. * static_cast<double>(_innerBlockCount));
+  _nozzleSteps      = std::ceil((std::log2(2. * _nozzleRadius / _innerSquareWidth) / std::log2(1 + phi)));
+  _pipeSteps        = std::ceil((std::log2(_pipeRadius / _nozzleRadius) / std::log2(1 + phi)));
+  _outerSteps       = 4;
+  _outerSquareWidth = _pipeRadius * 1.25;
+  _alpha            = 0.23;  // should not be greater than 1 - sin(pi / 4) = 0.29289321881...
+  _alphaConnection  = 0.;
 }
 
 template <typename T>
-T BaseConfig::string_to_T(string const &str) {
+T BaseConfig::stringToT(string const &str) {
   T            result;
   stringstream sstream(str);
   if (not(sstream >> result)) {
@@ -45,7 +42,7 @@ T BaseConfig::readFromMap(unordered_map<string, string> &keyValueMap, char const
     stringName.append(" could not be found in base config file!");
     std::cout << stringName << '\n';
   }
-  T result = string_to_T<T>(keyValueMap[name]);
+  T result = stringToT<T>(keyValueMap[name]);
   cout << std::setfill('.') << std::setw(30) << left << name << "\t" << result << '\n';
   return result;
 }
@@ -66,11 +63,11 @@ void BaseConfig::readBaseConfig(char const *baseConfigPath) {
     }
     keyValueMap.insert(make_pair(key, value));
   }
-  innerSquareSide    = readFromMap<double>(keyValueMap, "innerSquareSide");
-  innerBlockMinWidth = readFromMap<double>(keyValueMap, "innerBlockMinWidth");
-  nozzleRadius       = readFromMap<double>(keyValueMap, "nozzleRadius");
-  pipeRadius         = readFromMap<double>(keyValueMap, "pipeRadius");
-  alpha              = readFromMap<double>(keyValueMap, "alpha");
-  alphaConnection    = readFromMap<double>(keyValueMap, "alphaConnection");
+  _innerSquareWidth   = readFromMap<double>(keyValueMap, "innerSquareWidth");
+  _innerBlockMinWidth = readFromMap<double>(keyValueMap, "innerBlockMinWidth");
+  _nozzleRadius       = readFromMap<double>(keyValueMap, "nozzleRadius");
+  _pipeRadius         = readFromMap<double>(keyValueMap, "pipeRadius");
+  _alpha              = readFromMap<double>(keyValueMap, "alpha");
+  _alphaConnection    = readFromMap<double>(keyValueMap, "alphaConnection");
   cout << "BaseConfig file read succesfully\n\n";
 }

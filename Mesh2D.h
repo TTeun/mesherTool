@@ -7,7 +7,6 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "BaseConfig.h"
 #include "Geo2D.h"
 
 struct pair_hash {

@@ -98,12 +98,16 @@ void Mesh2D::showMesh() {
     polygons[i].setPoint(4, quads[5 * i + 4].position);
 
     polygons[i].setOutlineColor(sf::Color::Black);
-    polygons[i].setOutlineThickness(1);
+    polygons[i].setOutlineThickness(0);
     auto color = _faces[i]->getType() == Face2D::FaceType::Nozzle
                      ? sf::Color::Red
                      : _faces[i]->getType() == Face2D::FaceType::Pipe ? sf::Color::Green : sf::Color::Yellow;
     polygons[i].setFillColor(color);
   }
+
+  bool showPolygons = true;
+  bool showCenters  = true;
+  bool showOutlines = true;
 
   while (window.isOpen()) {
     sf::Event event;
@@ -111,14 +115,34 @@ void Mesh2D::showMesh() {
       if (event.type == sf::Event::Closed) {
         window.close();
       }
+      if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == sf::Keyboard::P) {
+          showPolygons = not showPolygons;
+        }
+        if (event.key.code == sf::Keyboard::C) {
+          showCenters = not showCenters;
+        }
+        if (event.key.code == sf::Keyboard::O) {
+          showOutlines = not showOutlines;
+        }
+      }
     }
     window.clear(grey);
-    for (size_t i = 0; i != polygons.size(); ++i) {
-      window.draw(polygons[i]);
+    if (showPolygons) {
+      for (size_t i = 0; i != polygons.size(); ++i) {
+        window.draw(polygons[i]);
+      }
     }
-    // for (size_t i = 0; i < centersConnections.size(); i += 3) {
-    //   window.draw(centersConnections.data() + i, 3, sf::LinesStrip);
-    // }
+    if (showCenters) {
+      for (size_t i = 0; i < centersConnections.size(); i += 3) {
+        window.draw(centersConnections.data() + i, 3, sf::LinesStrip);
+      }
+    }
+    if (showOutlines) {
+      for (size_t i = 0; i < quads.size(); i += 5) {
+        window.draw(quads.data() + i, 5, sf::LinesStrip);
+      }
+    }
     window.draw(points.data(), points.size(), sf::Points);
     window.display();
   }
@@ -131,18 +155,21 @@ void Mesh2D::addFace(
   addEdgesFromFace(_faces.back().get());
 }
 
-void Mesh2D::addEdgesFromFace(Face2D *addedFace) {
+void Mesh2D::addEdgesFromFace(Face2D *const addedFace) {
+  std::pair<size_t, size_t> sortedIndices;
   for (auto vertIt = addedFace->getVertices().begin(); vertIt != addedFace->getVertices().end(); ++vertIt) {
-    auto sortedIndices = std::make_pair(std::min((*vertIt)->_index, (*(vertIt + 1))->_index),
-                                        std::max((*vertIt)->_index, (*(vertIt + 1))->_index));
-
-    if (vertIt + 1 == addedFace->getVertices().end())
+    if (vertIt + 1 == addedFace->getVertices().end()) {
       sortedIndices =
           std::make_pair(std::min((*vertIt)->_index, (*addedFace->getVertices().begin())->_index),
                          std::max((*vertIt)->_index, (*addedFace->getVertices().begin())->_index));
+    } else {
+      sortedIndices = std::make_pair(std::min((*vertIt)->_index, (*(vertIt + 1))->_index),
+                                     std::max((*vertIt)->_index, (*(vertIt + 1))->_index));
+    }
+    assert(sortedIndices.first < sortedIndices.second);
 
     if (_edges.find(sortedIndices) != _edges.end()) {
-      // assert(_edges[sortedIndices]->_faces[0] != nullptr && _edges[sortedIndices]->_faces[1] == nullptr);
+      assert(_edges[sortedIndices]->_faces[0] != nullptr && _edges[sortedIndices]->_faces[1] == nullptr);
       _edges[sortedIndices]->_faces[1] = addedFace;
     } else {
       _edges[sortedIndices] = std::unique_ptr<Edge2D>(new Edge2D(addedFace));

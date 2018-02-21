@@ -7,28 +7,21 @@
 struct BaseConfig {
   BaseConfig(char const *baseConfigPath = "config.cfg");
 
-  double innerSquareSide;
-  double outerSquareSide;
-  double innerBlockMinWidth;
-  double innerBlockWidth;
-  double halfSquareSize;
-
-  size_t innerBlockCount;
-  size_t halfInnerBlockCount;
-  size_t nozzleSteps;
-  double nozzleRadius;
-  size_t pipeSteps;
-  double pipeRadius;
-
-  size_t outerSteps;
-
-  size_t totalSteps;
-
-  double alpha;
-  double alphaConnection;
+  double _innerSquareWidth;
+  double _outerSquareWidth;
+  double _innerBlockMinWidth;
+  double _innerBlockWidth;
+  double _nozzleRadius;
+  double _pipeRadius;
+  double _alpha;
+  double _alphaConnection;
+  size_t _innerBlockCount;
+  size_t _nozzleSteps;
+  size_t _pipeSteps;
+  size_t _outerSteps;
 
   template <typename T>
-  T string_to_T(std::string const &str);
+  T stringToT(std::string const &str);
 
   template <typename T>
   T readFromMap(std::unordered_map<std::string, std::string> &key_value_map, char const *name);
