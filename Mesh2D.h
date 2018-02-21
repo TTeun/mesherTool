@@ -1,7 +1,6 @@
 #ifndef __MESH2D_H
 #define __MESH2D_H
 
-#include <SFML/Graphics.hpp>
 #include <cassert>
 #include <iostream>
 #include <memory>
@@ -26,19 +25,21 @@ class Mesh2D {
 
   void addFace(size_t idx0, size_t idx1, size_t idx2, size_t idx3, Face2D::FaceType type);
   void addVertex(const double x, const double y) {
-    _vertices.push_back(std::unique_ptr<Vertex2D>(new Vertex2D(sf::Vector2f(x, y), _vertices.size())));
+    _vertices.push_back(std::unique_ptr<Vertex2D>(new Vertex2D(x, y, _vertices.size())));
   }
 
   void addVertex(const std::pair<double, double> &coords) {
     _vertices.push_back(
-        std::unique_ptr<Vertex2D>(new Vertex2D(sf::Vector2f(coords.first, coords.second), _vertices.size())));
+        std::unique_ptr<Vertex2D>(new Vertex2D(coords.first, coords.second, _vertices.size())));
   }
 
   std::vector<std::unique_ptr<Vertex2D>> const &getVertices() const { return _vertices; }
   std::vector<std::unique_ptr<Face2D>> const &  getFaces() const { return _faces; }
   edgeMap const &                               getEdges() const { return _edges; }
 
+#ifdef __HAS__SFML
   void showMesh();
+#endif
 
  private:
   void addEdgesFromFace(Face2D *addedFace);

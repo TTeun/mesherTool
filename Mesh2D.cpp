@@ -3,6 +3,9 @@
 
 Mesh2D::Mesh2D() {}
 
+#ifdef __HAS__SFML
+#include <SFML/Graphics.hpp>
+
 void normalizePoints(std::vector<sf::Vertex> &points,
                      std::vector<sf::Vertex> &quads,
                      std::vector<sf::Vertex> &centers,
@@ -61,28 +64,32 @@ void Mesh2D::showMesh() {
   for (auto faceIt = _faces.begin(); faceIt != _faces.end(); ++faceIt) {
     assert((*faceIt)->getEdges().size() == 4);
     for (auto vertIt = (*faceIt)->getVertices().begin(); vertIt != (*faceIt)->getVertices().end(); ++vertIt) {
-      quads.push_back(sf::Vertex((**vertIt).position, sf::Color::Black));
+      quads.push_back(sf::Vertex({(**vertIt)._x, (**vertIt)._y}, sf::Color::Black));
     }
-    quads.push_back(sf::Vertex((**((*faceIt)->getVertices().begin())).position, sf::Color::Black));
+    quads.push_back(
+        sf::Vertex({(**((*faceIt)->getVertices().begin()))._x, (**((*faceIt)->getVertices().begin()))._y},
+                   sf::Color::Black));
   }
 
   std::vector<sf::Vertex> points;
   for (auto vertIt = getVertices().begin(); vertIt != getVertices().end(); ++vertIt) {
-    points.push_back(sf::Vertex((**vertIt).position, sf::Color::Black));
+    points.push_back(sf::Vertex({(**vertIt)._x, (**vertIt)._y}, sf::Color::Black));
   }
   std::vector<sf::Vertex> centersConnections;
-  sf::Vector2f            c;
+  doublePair              c;
 
   for (auto edgeIt = _edges.begin(); edgeIt != _edges.end(); ++edgeIt) {
-    c = .5f * (_vertices[edgeIt->first.first]->position + _vertices[edgeIt->first.second]->position);
-    sf::Vector2f f1 = 0.6f * edgeIt->second->_faces[0]->getCenter() + 0.4f * c;
+    c = .5f * (static_cast<doublePair>(*_vertices[edgeIt->first.first].get()) +
+               static_cast<doublePair>(*_vertices[edgeIt->first.second].get()));
 
-    centersConnections.push_back(sf::Vertex(f1, sf::Color::Magenta));
-    centersConnections.push_back(sf::Vertex(c, sf::Color::Magenta));
+    auto face1 = 0.6f * edgeIt->second->_faces[0]->getCenter() + 0.4f * c;
+
+    centersConnections.push_back(sf::Vertex(sf::Vector2f{face1.first, face1.second}, sf::Color::Magenta));
+    centersConnections.push_back(sf::Vertex(sf::Vector2f{c.first, c.second}, sf::Color::Magenta));
     if (edgeIt->second->_faces[1] != nullptr) {
-      f1 = 0.6f * edgeIt->second->_faces[1]->getCenter() + 0.4f * c;
+      face1 = 0.6f * edgeIt->second->_faces[1]->getCenter() + 0.4f * c;
     }
-    centersConnections.push_back(sf::Vertex(f1, sf::Color::Magenta));
+    centersConnections.push_back(sf::Vertex(sf::Vector2f{face1.first, face1.second}, sf::Color::Magenta));
   }
 
   normalizePoints(points, quads, centersConnections);
@@ -147,6 +154,8 @@ void Mesh2D::showMesh() {
     window.display();
   }
 }
+
+#endif
 
 void Mesh2D::addFace(
     const size_t idx0, const size_t idx1, const size_t idx2, const size_t idx3, const Face2D::FaceType type) {

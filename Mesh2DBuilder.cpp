@@ -32,23 +32,7 @@ void buildInnerSquare(const BaseConfig &baseConfig, Mesh2D &mesh) {
   }
 }
 
-typedef std::pair<double, double> doublePair;
-
-doublePair operator*(const double m, doublePair const &c) {
-  doublePair r(c);
-  r.first *= m;
-  r.second *= m;
-  return r;
-}
-
-doublePair operator+(const doublePair &lhs, const doublePair &rhs) {
-  doublePair r(rhs);
-  r.first += lhs.first;
-  r.second += lhs.second;
-  return r;
-}
-
-doublePair swapCoordsToQuadrant(size_t quadrant, const doublePair &coords) {
+std::pair<double, double> swapCoordsToQuadrant(size_t quadrant, const doublePair &coords) {
   switch (quadrant) {
     case 0:
       return std::make_pair(coords.first, coords.second);
@@ -59,7 +43,7 @@ doublePair swapCoordsToQuadrant(size_t quadrant, const doublePair &coords) {
     case 3:
       return std::make_pair(coords.second, -coords.first);
   }
-  return std::make_pair(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+  return std::make_pair(0., 0.);
 }
 
 struct Square {

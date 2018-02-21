@@ -1,11 +1,22 @@
 #ifndef __GEO2D_H
 #define __GEO2D_H
 
-#include <SFML/Graphics.hpp>
 #include <array>
+#include <tuple>
 
-struct Vertex2D : public sf::Vertex {
-  Vertex2D(sf::Vector2f const &pos, size_t idx) : sf::Vertex(pos), _index(idx) {}
+typedef std::pair<double, double> doublePair;
+
+doublePair operator*(const double m, doublePair const &c);
+
+doublePair operator+(const doublePair &lhs, const doublePair &rhs);
+
+struct Vertex2D {
+  Vertex2D(const double x, const double y, size_t idx) : _x(x), _y(y), _index(idx) {}
+
+  operator doublePair() { return std::make_pair(_x, _y); }
+
+  double _x;
+  double _y;
   size_t _index;
 };
 
@@ -22,7 +33,7 @@ class Face2D {
 
   void addEdge(Edge2D *edge);
 
-  sf::Vector2f getCenter() const;
+  doublePair getCenter() const;
 
   FaceType getType() const { return _type; }
 
